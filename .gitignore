@@ -1,0 +1,23 @@
+node_modules/
+.DS_Store
+*.log
+.env
+
+# Backend
+backend/node_modules/
+backend/.env
+backend/uploads/
+backend/dist/
+
+# Mobile
+mobile/node_modules/
+mobile/.expo/
+mobile/.expo-shared/
+mobile/dist/
+mobile/web-build/
+mobile/*.jks
+mobile/*.p8
+mobile/*.p12
+mobile/*.key
+mobile/*.mobileprovision
+

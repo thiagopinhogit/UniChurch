@@ -1,0 +1,18 @@
+{
+  "name": "unichurch",
+  "version": "1.0.0",
+  "description": "Sistema completo de integração para igrejas",
+  "scripts": {
+    "install:all": "npm run install:backend && npm run install:mobile",
+    "install:backend": "cd backend && npm install",
+    "install:mobile": "cd mobile && npm install",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:mobile": "cd mobile && npm start",
+    "seed": "cd backend && node src/seed.js",
+    "start:backend": "cd backend && npm start"
+  },
+  "keywords": ["church", "integration", "community", "react-native", "mongodb"],
+  "author": "",
+  "license": "MIT"
+}
+
