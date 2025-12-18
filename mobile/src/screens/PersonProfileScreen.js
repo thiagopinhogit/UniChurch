@@ -11,33 +11,111 @@ import {
   Alert,
   ActivityIndicator
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../styles/theme';
 import Button from '../components/Button';
-import { getUserById } from '../services/api';
+import { getUserById, toggleChurchAdmin } from '../services/api';
+import { getUser } from '../services/storage';
 
 export default function PersonProfileScreen({ route, navigation }) {
   const { person: initialPerson, userId } = route.params || {};
   const [person, setPerson] = useState(initialPerson);
+  const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(!initialPerson && !!userId);
 
   useEffect(() => {
-    // Se não temos person mas temos userId, buscar da API
-    if (!initialPerson && userId) {
-      loadUser();
-    }
+    loadData();
   }, [userId]);
 
-  const loadUser = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const response = await getUserById(userId);
-      setPerson(response.data);
+      
+      // Load current user
+      const user = await getUser();
+      console.log('👤 Current User:', {
+        id: user?._id,
+        name: user?.name,
+        is_church_admin: user?.is_church_admin,
+        isAdmin: user?.isAdmin
+      });
+      setCurrentUser(user);
+
+      // Load person data if needed
+      if (!initialPerson && userId) {
+        const response = await getUserById(userId);
+        console.log('👥 Person Profile:', {
+          id: response.data._id,
+          name: response.data.name,
+          is_church_admin: response.data.is_church_admin
+        });
+        setPerson(response.data);
+      } else if (initialPerson) {
+        console.log('👥 Person Profile (from props):', {
+          id: initialPerson._id,
+          name: initialPerson.name,
+          is_church_admin: initialPerson.is_church_admin
+        });
+      }
+
+      // Log admin check
+      const isViewingSelf = person?._id === user?._id || initialPerson?._id === user?._id;
+      const isCurrentUserAdmin = user?.is_church_admin || user?.isAdmin;
+      console.log('🔐 Admin Check:', {
+        isCurrentUserAdmin,
+        isViewingSelf,
+        shouldShowAdminControls: isCurrentUserAdmin && !isViewingSelf
+      });
     } catch (error) {
-      console.error('Error loading user:', error);
+      console.error('Error loading data:', error);
       Alert.alert('Erro', 'Não foi possível carregar o perfil do usuário');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleToggleAdmin = async () => {
+    if (!person || !currentUser) return;
+
+    const isAdmin = person.is_church_admin;
+    
+    Alert.alert(
+      isAdmin ? 'Remover Administrador' : 'Promover a Administrador',
+      isAdmin 
+        ? `Remover ${person.name} como administrador da igreja?`
+        : `Promover ${person.name} a administrador da igreja?\n\nEle poderá gerenciar membros, grupos e configurações.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: isAdmin ? 'Remover' : 'Promover',
+          style: isAdmin ? 'destructive' : 'default',
+          onPress: async () => {
+            try {
+              setLoading(true);
+              const response = await toggleChurchAdmin(person._id);
+              
+              // Update person state
+              setPerson(prev => ({
+                ...prev,
+                is_church_admin: response.data.is_church_admin
+              }));
+
+              Alert.alert(
+                'Sucesso',
+                isAdmin 
+                  ? `${person.name} não é mais administrador`
+                  : `${person.name} agora é administrador`
+              );
+            } catch (error) {
+              console.error('Error toggling admin:', error);
+              Alert.alert('Erro', 'Não foi possível atualizar as permissões');
+            } finally {
+              setLoading(false);
+            }
+          }
+        }
+      ]
+    );
   };
 
   // Se está carregando, mostrar loading
@@ -98,6 +176,12 @@ export default function PersonProfileScreen({ route, navigation }) {
             style={styles.avatar}
           />
           <Text style={styles.name}>{person?.name || 'Nome não disponível'}</Text>
+          {person?.is_church_admin && (
+            <View style={styles.adminBadge}>
+              <Ionicons name="shield-checkmark" size={14} color={colors.primary} />
+              <Text style={styles.adminBadgeText}>Admin da Igreja</Text>
+            </View>
+          )}
           {person?.profession && (
             <Text style={styles.profession}>{person.profession}</Text>
           )}
@@ -180,6 +264,33 @@ export default function PersonProfileScreen({ route, navigation }) {
             </View>
           )}
         </View>
+
+        {/* Admin Controls - Only show if current user is admin and viewing another user */}
+        {(currentUser?.is_church_admin || currentUser?.isAdmin) && person?._id !== currentUser._id && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Administração da Igreja</Text>
+            <TouchableOpacity
+              style={styles.adminControlButton}
+              onPress={handleToggleAdmin}
+              activeOpacity={0.7}
+            >
+              <View style={styles.adminControlIcon}>
+                <Ionicons 
+                  name={person.is_church_admin ? "remove-circle-outline" : "shield-checkmark-outline"} 
+                  size={20} 
+                  color={person.is_church_admin ? colors.error : colors.primary} 
+                />
+              </View>
+              <Text style={[
+                styles.adminControlText,
+                person.is_church_admin && styles.adminControlTextDanger
+              ]}>
+                {person.is_church_admin ? 'Remover Admin da Igreja' : 'Promover a Admin da Igreja'}
+              </Text>
+              <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -342,6 +453,49 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: fontSize.md,
     fontWeight: fontWeight.semibold,
+  },
+  adminBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs / 2,
+    backgroundColor: colors.primaryLight + '20',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.full,
+    marginBottom: spacing.sm,
+  },
+  adminBadgeText: {
+    fontSize: fontSize.sm,
+    fontWeight: fontWeight.semibold,
+    color: colors.primary,
+  },
+  adminControlButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    padding: spacing.md,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+  },
+  adminControlIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.primaryLight + '20',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: spacing.md,
+  },
+  adminControlText: {
+    flex: 1,
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.medium,
+    color: colors.text,
+    letterSpacing: -0.2,
+  },
+  adminControlTextDanger: {
+    color: colors.error,
   },
 });
 

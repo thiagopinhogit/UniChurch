@@ -26,6 +26,22 @@ const groupSchema = new mongoose.Schema({
   whatsapp_link: {
     type: String
   },
+  is_private: {
+    type: Boolean,
+    default: false
+  },
+  admins: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  pending_requests: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  created_by: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
   is_active: {
     type: Boolean,
     default: true

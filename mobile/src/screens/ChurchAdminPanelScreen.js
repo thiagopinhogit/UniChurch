@@ -21,7 +21,8 @@ export default function ChurchAdminPanelScreen({ navigation, route }) {
     activeGroups: 0,
     totalGroups: 0,
     upcomingEvents: 0,
-    membersWithoutGroup: 0
+    membersWithoutGroup: 0,
+    membersInGroupPercentage: 0
   });
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -70,6 +71,9 @@ export default function ChurchAdminPanelScreen({ navigation, route }) {
           }
         });
         const membersWithoutGroup = users.length - membersInGroups.size;
+        const membersInGroupPercentage = users.length > 0 
+          ? Math.round((membersInGroups.size / users.length) * 100) 
+          : 0;
 
         // Load events
         const eventsResponse = await api.get(`/events/church/${user.church_id}`);
@@ -86,7 +90,8 @@ export default function ChurchAdminPanelScreen({ navigation, route }) {
           activeGroups: groups.filter(g => g.members && g.members.length > 0).length,
           totalGroups: groups.length,
           upcomingEvents: upcoming.length,
-          membersWithoutGroup
+          membersWithoutGroup,
+          membersInGroupPercentage
         });
       }
     } catch (error) {
@@ -206,25 +211,16 @@ export default function ChurchAdminPanelScreen({ navigation, route }) {
               <Text style={styles.statLabelSmall}>Próximos Eventos</Text>
             </View>
           </View>
-        </View>
 
-        {/* Alert Card - Membros sem grupo */}
-        {stats.membersWithoutGroup > 0 && (
-          <TouchableOpacity style={styles.alertCard}>
-            <View style={styles.alertIcon}>
-              <Text style={styles.alertEmoji}>⚠️</Text>
-            </View>
-            <View style={styles.alertContent}>
-              <Text style={styles.alertTitle}>
-                {stats.membersWithoutGroup} {stats.membersWithoutGroup === 1 ? 'membro' : 'membros'} sem grupo
-              </Text>
-              <Text style={styles.alertDescription}>
-                Ajude-os a se conectar criando ou sugerindo grupos
-              </Text>
-            </View>
-            <Text style={styles.alertArrow}>›</Text>
-          </TouchableOpacity>
-        )}
+          {/* KPI Membros em Células - Menor */}
+          <View style={styles.cellMembershipCard}>
+            <Text style={styles.cellPercentage}>{stats.membersInGroupPercentage}%</Text>
+            <Text style={styles.cellLabel}>dos membros estão em células</Text>
+            <Text style={styles.cellSubtext}>
+              {stats.totalMembers - stats.membersWithoutGroup} de {stats.totalMembers} membros
+            </Text>
+          </View>
+        </View>
 
         {/* Upcoming Events */}
         {upcomingEvents.length > 0 && (
@@ -402,47 +398,32 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // Alert Card
-  alertCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF4E6',
-    padding: spacing.lg,
-    borderRadius: borderRadius.xl,
-    marginBottom: spacing.xl,
-    borderWidth: 1,
-    borderColor: '#FFE0B2',
-  },
-  alertIcon: {
-    width: 40,
-    height: 40,
+  // Cell Membership Card - Menor e menos destacado
+  cellMembershipCard: {
+    backgroundColor: colors.card,
+    padding: spacing.md,
     borderRadius: borderRadius.lg,
-    backgroundColor: '#FFF',
-    justifyContent: 'center',
     alignItems: 'center',
-    marginRight: spacing.md,
+    marginTop: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.primary + '20',
+    ...shadows.small,
   },
-  alertEmoji: {
-    fontSize: 20,
-  },
-  alertContent: {
-    flex: 1,
-  },
-  alertTitle: {
-    fontSize: fontSize.md,
-    fontWeight: fontWeight.semibold,
-    color: '#E65100',
+  cellPercentage: {
+    fontSize: fontSize.xl + 2,
+    fontWeight: fontWeight.bold,
+    color: colors.primary,
     marginBottom: spacing.xs / 2,
   },
-  alertDescription: {
+  cellLabel: {
     fontSize: fontSize.sm,
-    color: '#F57C00',
-    lineHeight: 18,
+    color: colors.text,
+    fontWeight: fontWeight.medium,
+    marginBottom: spacing.xs / 2,
   },
-  alertArrow: {
-    fontSize: 24,
-    color: '#F57C00',
-    marginLeft: spacing.sm,
+  cellSubtext: {
+    fontSize: fontSize.xs,
+    color: colors.textSecondary,
   },
 
   // Section

@@ -41,6 +41,7 @@ import ChurchEditScreen from './src/screens/ChurchEditScreen';
 import ChurchLocationScreen from './src/screens/ChurchLocationScreen';
 import CreateGroupScreen from './src/screens/CreateGroupScreen';
 import EditGroupScreen from './src/screens/EditGroupScreen';
+import AdminManagementScreen from './src/screens/AdminManagementScreen';
 
 const Stack = createStackNavigator();
 
@@ -269,6 +270,11 @@ export default function App() {
           <Stack.Screen 
             name="EditGroup" 
             component={EditGroupScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="AdminManagement" 
+            component={AdminManagementScreen}
             options={{ headerShown: false }}
           />
           

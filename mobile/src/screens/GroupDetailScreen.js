@@ -12,7 +12,7 @@ import {
   TouchableOpacity
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getGroupById, joinGroup, leaveGroup, requestJoinGroup, approveJoinRequest, rejectJoinRequest, getGroupPendingRequests, deleteGroup } from '../services/api';
+import { getGroupById, joinGroup, leaveGroup, requestJoinGroup, approveJoinRequest, rejectJoinRequest, getGroupPendingRequests, deleteGroup, toggleGroupAdmin } from '../services/api';
 import { getUser } from '../services/storage';
 import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../styles/theme';
 import Button from '../components/Button';
@@ -234,6 +234,50 @@ export default function GroupDetailScreen({ route, navigation }) {
     }
   };
 
+  const handleToggleGroupAdmin = async (member) => {
+    if (!member || !currentUser) return;
+
+    const isGroupAdmin = group.admins?.some(adminId => {
+      const id = typeof adminId === 'string' ? adminId : adminId._id;
+      return id === member._id;
+    });
+
+    Alert.alert(
+      isGroupAdmin ? 'Remover Admin do Grupo' : 'Promover a Admin do Grupo',
+      isGroupAdmin 
+        ? `Remover ${member.name} como administrador deste grupo?\n\nEle não poderá mais gerenciar membros e configurações do grupo.`
+        : `Promover ${member.name} a administrador deste grupo?\n\nEle poderá gerenciar membros e configurações do grupo.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: isGroupAdmin ? 'Remover' : 'Promover',
+          style: isGroupAdmin ? 'destructive' : 'default',
+          onPress: async () => {
+            try {
+              setActionLoading(true);
+              await toggleGroupAdmin(group._id, member._id);
+              
+              Alert.alert(
+                'Sucesso',
+                isGroupAdmin 
+                  ? `${member.name} não é mais admin do grupo`
+                  : `${member.name} agora é admin do grupo`
+              );
+
+              // Reload group data
+              await loadData();
+            } catch (error) {
+              console.error('Error toggling group admin:', error);
+              Alert.alert('Erro', 'Não foi possível atualizar as permissões');
+            } finally {
+              setActionLoading(false);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const getGroupTypeLabel = (type) => {
     const labels = {
       'CELL': 'Célula',
@@ -375,21 +419,52 @@ export default function GroupDetailScreen({ route, navigation }) {
               Membros ({group.members.length})
             </Text>
             <View style={styles.membersContainer}>
-              {group.members.filter(member => member != null).slice(0, 10).map((member, index) => (
-                <View key={index} style={styles.memberItem}>
-                  <Image 
-                    source={member.photo_url ? { uri: member.photo_url } : require('../../assets/default-avatar.png')}
-                    style={styles.memberAvatar}
-                  />
-                  <Text style={styles.memberName} numberOfLines={1}>
-                    {member.name || 'Usuário'}
-                  </Text>
-                </View>
-              ))}
+              {group.members.filter(member => member != null).slice(0, 10).map((member, index) => {
+                const isMemberAdmin = group.admins?.some(adminId => {
+                  const id = typeof adminId === 'string' ? adminId : adminId._id;
+                  return id === member._id;
+                });
+
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.memberItem}
+                    onPress={() => {
+                      if (isAdmin) {
+                        navigation.navigate('PersonProfile', { userId: member._id });
+                      }
+                    }}
+                    onLongPress={() => {
+                      if (isAdmin && member._id !== currentUser._id) {
+                        handleToggleGroupAdmin(member);
+                      }
+                    }}
+                    activeOpacity={isAdmin ? 0.7 : 1}
+                  >
+                    <Image 
+                      source={member.photo_url ? { uri: member.photo_url } : require('../../assets/default-avatar.png')}
+                      style={styles.memberAvatar}
+                    />
+                    {isMemberAdmin && (
+                      <View style={styles.memberAdminBadge}>
+                        <Ionicons name="shield-checkmark" size={10} color={colors.primary} />
+                      </View>
+                    )}
+                    <Text style={styles.memberName} numberOfLines={1}>
+                      {member.name || 'Usuário'}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
             {group.member_count > 10 && (
               <Text style={styles.moreMembers}>
                 + {group.member_count - 10} outros membros
+              </Text>
+            )}
+            {isAdmin && (
+              <Text style={styles.adminHint}>
+                💡 Pressione e segure em um membro para promover/remover como admin do grupo
               </Text>
             )}
           </View>
@@ -591,6 +666,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: spacing.md,
     marginBottom: spacing.md,
+    position: 'relative',
   },
   memberAvatar: {
     width: 50,
@@ -598,6 +674,19 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.round,
     backgroundColor: colors.border,
     marginBottom: spacing.xs,
+  },
+  memberAdminBadge: {
+    position: 'absolute',
+    top: 0,
+    right: 12,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: colors.primaryLight + '40',
+    borderWidth: 2,
+    borderColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   memberName: {
     fontSize: fontSize.xs,
@@ -610,6 +699,13 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginTop: spacing.sm,
     letterSpacing: -0.1,
+  },
+  adminHint: {
+    fontSize: fontSize.xs,
+    color: colors.textTertiary,
+    marginTop: spacing.md,
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
   requestItem: {
     flexDirection: 'row',

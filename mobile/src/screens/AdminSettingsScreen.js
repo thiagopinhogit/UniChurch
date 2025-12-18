@@ -248,7 +248,10 @@ export default function AdminSettingsScreen({ navigation }) {
             <Text style={styles.settingArrow}>›</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.settingCard}>
+          <TouchableOpacity 
+            style={styles.settingCard}
+            onPress={() => navigation.navigate('AdminManagement')}
+          >
             <View style={styles.iconContainer}>
               <Text style={styles.iconText}>⚙</Text>
             </View>

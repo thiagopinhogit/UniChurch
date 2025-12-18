@@ -15,8 +15,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.unichurch.app",
+      "supportsTablet": false,
+      "bundleIdentifier": "com.uni-church.app",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Precisamos da sua localização para encontrar igrejas próximas a você.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Precisamos da sua localização para encontrar igrejas próximas a você."
@@ -27,7 +27,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#6366F1"
       },
-      "package": "com.unichurch.app",
+      "package": "com.uni-church.app",
       "permissions": [
         "CAMERA",
         "READ_EXTERNAL_STORAGE",

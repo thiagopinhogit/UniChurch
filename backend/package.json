@@ -5,7 +5,8 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "lsof -ti:3000 | xargs kill -9 2>/dev/null || true && nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "sync-ip": "node src/utils/update-mobile-config.js"
   },
   "keywords": [
     "church",

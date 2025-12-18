@@ -9,7 +9,8 @@ import {
   Animated,
   Dimensions,
   Platform,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  Image
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../styles/theme';
@@ -62,9 +63,11 @@ export default function InitialScreen({ navigation }) {
       {/* Logo e branding */}
       <SafeAreaView style={styles.content}>
         <View style={styles.logoSection}>
-          <View style={styles.logoCircle}>
-            <Text style={styles.logoEmoji}>⛪</Text>
-          </View>
+          <Image 
+            source={require('../../assets/logo-transparent.png')} 
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
           <Text style={styles.appName}>UniChurch</Text>
           <Text style={styles.tagline}>
             Conectando pessoas na igreja
@@ -217,6 +220,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: spacing.xxl,
   },
+  logoImage: {
+    width: 100,
+    height: 100,
+  },
   logoCircle: {
     width: 100,
     height: 100,
@@ -259,7 +266,7 @@ const styles = StyleSheet.create({
   // Modal Styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
     justifyContent: 'flex-end',
   },
   modalContainer: {

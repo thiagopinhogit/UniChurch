@@ -8,12 +8,13 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
+  Image
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../styles/theme';
 import api from '../services/api';
-import { getGroupById, updateGroup } from '../services/api';
+import { getGroupById, updateGroup, toggleGroupAdmin } from '../services/api';
 import Button from '../components/Button';
 
 const GROUP_TYPES = [
@@ -28,10 +29,13 @@ export default function EditGroupScreen({ route, navigation }) {
   const { groupId } = route.params;
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [whatsappLink, setWhatsappLink] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [members, setMembers] = useState([]);
+  const [admins, setAdmins] = useState([]);
 
   useEffect(() => {
     loadGroup();
@@ -44,14 +48,49 @@ export default function EditGroupScreen({ route, navigation }) {
       
       setName(group.name);
       setDescription(group.description || '');
+      setWhatsappLink(group.whatsapp_link || '');
       setSelectedType(group.type);
       setIsPrivate(group.is_private || false);
+      setMembers(group.members || []);
+      setAdmins(group.admins || []);
     } catch (error) {
       console.error('Error loading group:', error);
       Alert.alert('Erro', 'Não foi possível carregar o grupo.');
       navigation.goBack();
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleMemberAdmin = async (memberId) => {
+    try {
+      const isAdmin = admins.some(adminId => {
+        const id = typeof adminId === 'string' ? adminId : adminId._id;
+        return id === memberId;
+      });
+
+      await toggleGroupAdmin(groupId, memberId);
+
+      // Update local state
+      if (isAdmin) {
+        setAdmins(admins.filter(adminId => {
+          const id = typeof adminId === 'string' ? adminId : adminId._id;
+          return id !== memberId;
+        }));
+      } else {
+        setAdmins([...admins, memberId]);
+      }
+
+      const member = members.find(m => m._id === memberId);
+      Alert.alert(
+        'Sucesso',
+        isAdmin 
+          ? `${member?.name} removido como admin do grupo`
+          : `${member?.name} promovido a admin do grupo`
+      );
+    } catch (error) {
+      console.error('Error toggling admin:', error);
+      Alert.alert('Erro', 'Não foi possível atualizar as permissões');
     }
   };
 
@@ -71,6 +110,7 @@ export default function EditGroupScreen({ route, navigation }) {
       const groupData = {
         name: name.trim(),
         description: description.trim(),
+        whatsapp_link: whatsappLink.trim(),
         type: selectedType,
         is_private: isPrivate,
       };
@@ -279,6 +319,77 @@ export default function EditGroupScreen({ route, navigation }) {
             {description.length}/200 caracteres
           </Text>
         </View>
+
+        {/* Link do WhatsApp */}
+        <View style={styles.section}>
+          <Text style={styles.label}>Link do Grupo no WhatsApp (opcional)</Text>
+          <Text style={styles.helperText}>
+            Cole aqui o link de convite do grupo do WhatsApp
+          </Text>
+          <View style={styles.whatsappInputContainer}>
+            <Ionicons name="logo-whatsapp" size={20} color={colors.success} style={styles.whatsappIcon} />
+            <TextInput
+              style={[styles.input, styles.whatsappInput]}
+              placeholder="https://chat.whatsapp.com/..."
+              placeholderTextColor={colors.textSecondary}
+              value={whatsappLink}
+              onChangeText={setWhatsappLink}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
+            />
+          </View>
+        </View>
+
+        {/* Gerenciar Administradores */}
+        {members.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.label}>Administradores do Grupo</Text>
+            <Text style={styles.helperText}>
+              Administradores podem gerenciar membros e configurações deste grupo
+            </Text>
+            
+            <View style={styles.adminsList}>
+              {members.filter(member => member != null).map((member, index) => {
+                const isAdmin = admins.some(adminId => {
+                  const id = typeof adminId === 'string' ? adminId : adminId._id;
+                  return id === member._id;
+                });
+
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.memberCard}
+                    onPress={() => handleToggleMemberAdmin(member._id)}
+                    activeOpacity={0.7}
+                  >
+                    <Image 
+                      source={member.photo_url ? { uri: member.photo_url } : require('../../assets/default-avatar.png')}
+                      style={styles.memberAvatar}
+                    />
+                    <View style={styles.memberInfo}>
+                      <Text style={styles.memberName}>{member.name}</Text>
+                      {isAdmin && (
+                        <View style={styles.adminBadgeSmall}>
+                          <Ionicons name="shield-checkmark" size={12} color={colors.primary} />
+                          <Text style={styles.adminBadgeTextSmall}>Admin do Grupo</Text>
+                        </View>
+                      )}
+                    </View>
+                    <View style={[
+                      styles.checkbox,
+                      isAdmin && styles.checkboxChecked
+                    ]}>
+                      {isAdmin && (
+                        <Ionicons name="checkmark" size={16} color="white" />
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        )}
 
         {/* Info Card para Células */}
         {selectedType === 'CELL' && (
@@ -531,6 +642,77 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: spacing.lg,
     marginBottom: spacing.xl,
+  },
+  adminsList: {
+    gap: spacing.sm,
+  },
+  memberCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    padding: spacing.md,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+  },
+  memberAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: borderRadius.round,
+    backgroundColor: colors.border,
+    marginRight: spacing.md,
+  },
+  memberInfo: {
+    flex: 1,
+  },
+  memberName: {
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.medium,
+    color: colors.text,
+    letterSpacing: -0.2,
+  },
+  adminBadgeSmall: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs / 2,
+    backgroundColor: colors.primaryLight + '20',
+    alignSelf: 'flex-start',
+    paddingHorizontal: spacing.xs,
+    paddingVertical: 2,
+    borderRadius: borderRadius.sm,
+    marginTop: spacing.xs / 2,
+  },
+  adminBadgeTextSmall: {
+    fontSize: fontSize.xs,
+    fontWeight: fontWeight.semibold,
+    color: colors.primary,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: borderRadius.sm,
+    borderWidth: 2,
+    borderColor: colors.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  whatsappInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  whatsappIcon: {
+    position: 'absolute',
+    left: spacing.md,
+    zIndex: 1,
+  },
+  whatsappInput: {
+    flex: 1,
+    paddingLeft: spacing.md + spacing.lg,
   },
 });
 

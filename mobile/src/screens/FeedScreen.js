@@ -18,12 +18,17 @@ export default function FeedScreen({ navigation }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMoreEvents, setHasMoreEvents] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+
+  const EVENTS_PER_PAGE = 20;
 
   useEffect(() => {
     loadData();
   }, []);
 
-  const loadData = async () => {
+  const loadData = async (isRefresh = false) => {
     try {
       const user = await getUser();
       const churchData = await getChurch();
@@ -31,14 +36,41 @@ export default function FeedScreen({ navigation }) {
       setChurch(churchData);
 
       if (churchData) {
-        const response = await getChurchEvents(churchData._id);
+        const response = await getChurchEvents(churchData._id, 0, EVENTS_PER_PAGE);
         setEvents(response.data);
+        setCurrentPage(0);
+        setHasMoreEvents(response.data.length >= EVENTS_PER_PAGE);
       }
     } catch (error) {
       console.error('Error loading events:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  };
+
+  const loadMoreEvents = async () => {
+    if (loadingMore || !hasMoreEvents || !church) return;
+
+    try {
+      setLoadingMore(true);
+      const nextPage = currentPage + 1;
+      const skip = nextPage * EVENTS_PER_PAGE;
+      
+      const response = await getChurchEvents(church._id, skip, EVENTS_PER_PAGE);
+      const newEvents = response.data;
+
+      if (newEvents.length > 0) {
+        setEvents(prevEvents => [...prevEvents, ...newEvents]);
+        setCurrentPage(nextPage);
+        setHasMoreEvents(newEvents.length >= EVENTS_PER_PAGE);
+      } else {
+        setHasMoreEvents(false);
+      }
+    } catch (error) {
+      console.error('Error loading more events:', error);
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -101,6 +133,9 @@ export default function FeedScreen({ navigation }) {
         refreshing={refreshing}
         onRefresh={onRefresh}
         showTitle={false}
+        onLoadMore={loadMoreEvents}
+        hasMoreEvents={hasMoreEvents}
+        loadingMore={loadingMore}
       />
     </SafeAreaView>
   );

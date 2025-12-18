@@ -7,7 +7,8 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
-  TextInput
+  TextInput,
+  Alert
 } from 'react-native';
 import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../styles/theme';
 import api from '../services/api';
@@ -86,9 +87,9 @@ export default function AdminMembersScreen({ navigation }) {
   const handleToggleAdmin = async (member) => {
     const isAdmin = member.is_church_admin;
     Alert.alert(
-      isAdmin ? 'Remover Administrador' : 'Promover a Administrador',
+      isAdmin ? 'Remover Admin da Igreja' : 'Promover a Admin da Igreja',
       isAdmin 
-        ? `Remover ${member.name} como administrador da igreja?`
+        ? `Remover ${member.name} como administrador da igreja?\n\nEle perderá acesso ao painel administrativo.`
         : `Promover ${member.name} a administrador da igreja?\n\nEle poderá gerenciar membros, grupos e configurações.`,
       [
         { text: 'Cancelar', style: 'cancel' },
@@ -101,10 +102,10 @@ export default function AdminMembersScreen({ navigation }) {
               Alert.alert(
                 'Sucesso',
                 isAdmin 
-                  ? `${member.name} não é mais administrador`
-                  : `${member.name} agora é administrador`,
-                [{ text: 'OK', onPress: () => loadMembers() }]
+                  ? `${member.name} não é mais admin da igreja`
+                  : `${member.name} agora é admin da igreja`
               );
+              await loadMembers();
             } catch (error) {
               console.error('Error toggling admin:', error);
               Alert.alert('Erro', 'Não foi possível atualizar as permissões');
@@ -183,7 +184,7 @@ export default function AdminMembersScreen({ navigation }) {
                   <Text style={styles.memberName}>{member.name}</Text>
                   {member.is_church_admin && (
                     <View style={styles.adminBadge}>
-                      <Text style={styles.adminBadgeText}>Admin</Text>
+                      <Text style={styles.adminBadgeText}>Admin da Igreja</Text>
                     </View>
                   )}
                 </View>

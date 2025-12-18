@@ -4,7 +4,8 @@ import {
   Text, 
   StyleSheet, 
   FlatList,
-  RefreshControl
+  RefreshControl,
+  ActivityIndicator
 } from 'react-native';
 import { colors, spacing, fontSize, fontWeight } from '../styles/theme';
 import EventCard from './EventCard';
@@ -17,8 +18,28 @@ export default function MuralFeed({
   refreshing = false,
   onRefresh,
   showTitle = true,
-  headerComponent = null
+  headerComponent = null,
+  onLoadMore,
+  hasMoreEvents = true,
+  loadingMore = false
 }) {
+  const handleEndReached = () => {
+    if (hasMoreEvents && !loadingMore && !refreshing && onLoadMore) {
+      onLoadMore();
+    }
+  };
+
+  const renderFooter = () => {
+    if (!loadingMore) return null;
+    
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="small" color={colors.primary} />
+        <Text style={styles.footerLoaderText}>Carregando mais eventos...</Text>
+      </View>
+    );
+  };
+
   return (
     <FlatList
       data={events}
@@ -64,6 +85,9 @@ export default function MuralFeed({
           </Text>
         </View>
       }
+      ListFooterComponent={renderFooter}
+      onEndReached={handleEndReached}
+      onEndReachedThreshold={0.5}
     />
   );
 }
@@ -116,6 +140,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
     letterSpacing: -0.1,
+  },
+  footerLoader: {
+    paddingVertical: spacing.xl,
+    alignItems: 'center',
+  },
+  footerLoaderText: {
+    marginTop: spacing.sm,
+    fontSize: fontSize.sm,
+    color: colors.textSecondary,
+    fontWeight: fontWeight.medium,
   },
 });
 

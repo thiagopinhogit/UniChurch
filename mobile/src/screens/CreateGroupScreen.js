@@ -26,6 +26,7 @@ const GROUP_TYPES = [
 export default function CreateGroupScreen({ navigation }) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [whatsappLink, setWhatsappLink] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -48,6 +49,7 @@ export default function CreateGroupScreen({ navigation }) {
       const groupData = {
         name: name.trim(),
         description: description.trim(),
+        whatsapp_link: whatsappLink.trim(),
         type: selectedType,
         church_id: user.church_id,
         created_by: user._id,
@@ -257,6 +259,27 @@ export default function CreateGroupScreen({ navigation }) {
           <Text style={styles.charCounter}>
             {description.length}/200 caracteres
           </Text>
+        </View>
+
+        {/* Link do WhatsApp */}
+        <View style={styles.section}>
+          <Text style={styles.label}>Link do Grupo no WhatsApp (opcional)</Text>
+          <Text style={styles.helperText}>
+            Cole aqui o link de convite do grupo do WhatsApp
+          </Text>
+          <View style={styles.whatsappInputContainer}>
+            <Ionicons name="logo-whatsapp" size={20} color={colors.success} style={styles.whatsappIcon} />
+            <TextInput
+              style={[styles.input, styles.whatsappInput]}
+              placeholder="https://chat.whatsapp.com/..."
+              placeholderTextColor={colors.textSecondary}
+              value={whatsappLink}
+              onChangeText={setWhatsappLink}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
+            />
+          </View>
         </View>
 
         {/* Info Card para Células */}
@@ -510,6 +533,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderTopWidth: 1,
     borderTopColor: colors.borderLight,
+  },
+  whatsappInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  whatsappIcon: {
+    position: 'absolute',
+    left: spacing.md,
+    zIndex: 1,
+  },
+  whatsappInput: {
+    flex: 1,
+    paddingLeft: spacing.md + spacing.lg,
   },
 });
 

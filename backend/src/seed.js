@@ -34,7 +34,9 @@ const churchesData = [
     address: 'Av. Paulista, 1000 - Bela Vista, São Paulo - SP',
     admin_email: 'admin.sp@unichurch.com',
     admin_password: 'unichurch123',
-    admin_name: 'Pr. Gabriel Silva'
+    admin_name: 'Pr. Gabriel Silva',
+    secondary_admin_name: 'Pra. Juliana Mendes',
+    secondary_admin_email: 'juliana.sp@unichurch.com'
   },
   {
     name: 'Igreja Comunidade Rio de Janeiro',
@@ -45,7 +47,9 @@ const churchesData = [
     address: 'Av. Atlântica, 500 - Copacabana, Rio de Janeiro - RJ',
     admin_email: 'admin.rj@unichurch.com',
     admin_password: 'unichurch123',
-    admin_name: 'Pra. Daniela Albuquerque'
+    admin_name: 'Pra. Daniela Albuquerque',
+    secondary_admin_name: 'Pr. Marcos Vieira',
+    secondary_admin_email: 'marcos.rj@unichurch.com'
   },
   {
     name: 'Igreja Nova Vida Curitiba',
@@ -56,7 +60,9 @@ const churchesData = [
     address: 'Rua XV de Novembro, 100 - Centro, Curitiba - PR',
     admin_email: 'admin.ctba@unichurch.com',
     admin_password: 'unichurch123',
-    admin_name: 'Pr. Henrique Mattos'
+    admin_name: 'Pr. Henrique Mattos',
+    secondary_admin_name: 'Líder Renata Souza',
+    secondary_admin_email: 'renata.ctba@unichurch.com'
   },
   {
     name: 'Igreja Renascer Londrina',
@@ -67,7 +73,9 @@ const churchesData = [
     address: 'Av. Higienópolis, 200 - Centro, Londrina - PR',
     admin_email: 'admin.ldn@unichurch.com',
     admin_password: 'unichurch123',
-    admin_name: 'Pra. Camila Ribeiro'
+    admin_name: 'Pra. Camila Ribeiro',
+    secondary_admin_name: 'Pr. Roberto Pires',
+    secondary_admin_email: 'roberto.ldn@unichurch.com'
   },
   {
     name: 'Igreja Esperança Maringá',
@@ -78,7 +86,9 @@ const churchesData = [
     address: 'Av. Brasil, 300 - Centro, Maringá - PR',
     admin_email: 'admin.mga@unichurch.com',
     admin_password: 'unichurch123',
-    admin_name: 'Pr. Eduardo Lopes'
+    admin_name: 'Pr. Eduardo Lopes',
+    secondary_admin_name: 'Líder Amanda Costa',
+    secondary_admin_email: 'amanda.mga@unichurch.com'
   }
 ];
 
@@ -92,16 +102,108 @@ const memberProfiles = [
   { name: 'Beatriz Rocha', profession: 'Médica', instagram: '@beatrocha', whatsappSuffix: '007' },
   { name: 'Rafael Costa', profession: 'Arquiteto', instagram: '@rafa.costa', whatsappSuffix: '008' },
   { name: 'Carolina Pereira', profession: 'Marketing Digital', instagram: '@carol.p', whatsappSuffix: '009' },
-  { name: 'Gustavo Almeida', profession: 'Músico', instagram: '@gustavo.play', whatsappSuffix: '010' }
+  { name: 'Gustavo Almeida', profession: 'Músico', instagram: '@gustavo.play', whatsappSuffix: '010' },
+  { name: 'Isabela Martins', profession: 'Fotógrafa', instagram: '@isa.foto', whatsappSuffix: '011' },
+  { name: 'Thiago Rodrigues', profession: 'Personal Trainer', instagram: '@thiago.fit', whatsappSuffix: '012' }
 ];
 
 const groupTemplates = [
-  { name: 'Célula Central', type: 'CELL', description: 'Célula para jovens casais com encontros semanais nas quartas.', emoji: '🏠' },
-  { name: 'Célula Famílias', type: 'CELL', description: 'Célula focada em famílias com filhos pequenos.', emoji: '🏡' },
-  { name: 'Ministério de Louvor', type: 'MINISTRY', description: 'Equipe de louvor e adoração. Ensaios aos domingos.', emoji: '🎵' },
-  { name: 'Grupo de Empreendedores', type: 'PROFESSION', description: 'Rede de apoio e networking para empreendedores cristãos.', emoji: '💼' },
-  { name: 'Pelada Unida', type: 'SPORT', description: 'Futebol recreativo toda sexta-feira à noite.', emoji: '⚽' },
-  { name: 'Clube do Cinema & Café', type: 'HOBBY', description: 'Debates sobre filmes e séries com uma boa xícara de café.', emoji: '🎬' }
+  { 
+    name: 'Célula Central', 
+    type: 'CELL', 
+    description: 'Célula para jovens casais com encontros semanais nas quartas às 20h.', 
+    emoji: '🏠',
+    whatsapp_link: 'https://chat.whatsapp.com/CELULACENTRALexample',
+    is_private: false
+  },
+  { 
+    name: 'Célula Famílias', 
+    type: 'CELL', 
+    description: 'Célula focada em famílias com filhos pequenos. Reuniões aos sábados pela manhã.', 
+    emoji: '🏡',
+    whatsapp_link: 'https://chat.whatsapp.com/CELULAFAMILIASexample',
+    is_private: false
+  },
+  { 
+    name: 'Célula Jovens', 
+    type: 'CELL', 
+    description: 'Célula para jovens de 18 a 30 anos. Encontros de discipulado e comunhão.', 
+    emoji: '🎯',
+    whatsapp_link: 'https://chat.whatsapp.com/CELULAJOVENSexample',
+    is_private: false
+  },
+  { 
+    name: 'Ministério de Louvor', 
+    type: 'MINISTRY', 
+    description: 'Equipe de louvor e adoração. Ensaios aos domingos após o culto.', 
+    emoji: '🎵',
+    whatsapp_link: 'https://chat.whatsapp.com/MINLOUVORexample',
+    is_private: false
+  },
+  { 
+    name: 'Ministério de Intercessão', 
+    type: 'MINISTRY', 
+    description: 'Grupo de oração e intercessão. Encontros às quartas-feiras de madrugada.', 
+    emoji: '🙏',
+    whatsapp_link: 'https://chat.whatsapp.com/MININTERCESSAOexample',
+    is_private: true
+  },
+  { 
+    name: 'Grupo de Empreendedores', 
+    type: 'PROFESSION', 
+    description: 'Rede de apoio e networking para empreendedores cristãos. Café da manhã mensal.', 
+    emoji: '💼',
+    whatsapp_link: 'https://chat.whatsapp.com/EMPREENDEDORESexample',
+    is_private: false
+  },
+  { 
+    name: 'Grupo Tech & Fé', 
+    type: 'PROFESSION', 
+    description: 'Profissionais de tecnologia compartilhando conhecimento e fé.', 
+    emoji: '💻',
+    whatsapp_link: 'https://chat.whatsapp.com/TECHFEexample',
+    is_private: false
+  },
+  { 
+    name: 'Pelada Unida', 
+    type: 'SPORT', 
+    description: 'Futebol recreativo toda sexta-feira às 19h no campo do bairro.', 
+    emoji: '⚽',
+    whatsapp_link: 'https://chat.whatsapp.com/PELADAUNIDAexample',
+    is_private: false
+  },
+  { 
+    name: 'Vôlei na Praia', 
+    type: 'SPORT', 
+    description: 'Vôlei de praia aos sábados pela manhã. Todos os níveis são bem-vindos!', 
+    emoji: '🏐',
+    whatsapp_link: 'https://chat.whatsapp.com/VOLEIPRAIAexample',
+    is_private: false
+  },
+  { 
+    name: 'Clube do Cinema & Café', 
+    type: 'HOBBY', 
+    description: 'Debates sobre filmes e séries com uma boa xícara de café. Encontros quinzenais.', 
+    emoji: '🎬',
+    whatsapp_link: 'https://chat.whatsapp.com/CINEMACAFEexample',
+    is_private: false
+  },
+  { 
+    name: 'Fotografia Criativa', 
+    type: 'HOBBY', 
+    description: 'Grupo de fotógrafos amadores e profissionais. Saídas fotográficas mensais.', 
+    emoji: '📷',
+    whatsapp_link: 'https://chat.whatsapp.com/FOTOCRIATIVAexample',
+    is_private: false
+  },
+  { 
+    name: 'Livros & Leitura', 
+    type: 'HOBBY', 
+    description: 'Clube do livro cristão. Um livro por mês e debates enriquecedores.', 
+    emoji: '📚',
+    whatsapp_link: 'https://chat.whatsapp.com/LIVROSLEITURAexample',
+    is_private: false
+  }
 ];
 
 const createInterestTags = async () => {
@@ -167,6 +269,7 @@ async function seedDatabase() {
 
       console.log(`\n➡️  Seeding church: ${church.name}`);
 
+      // Criar admin principal
       const adminUser = await User.create({
         church_id: church._id,
         name: church.admin_name,
@@ -176,10 +279,26 @@ async function seedDatabase() {
         show_whatsapp: true,
         show_instagram: false,
         whatsapp: `11${index + 1}9000000`,
-        profession: 'Pastor',
+        profession: 'Pastor(a)',
         is_new: false,
         is_church_admin: true,
-        created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60)
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90)
+      });
+
+      // Criar admin secundário
+      const secondaryAdminUser = await User.create({
+        church_id: church._id,
+        name: churchData.secondary_admin_name,
+        email: churchData.secondary_admin_email,
+        phone: `11${index + 1}9000001`,
+        show_profile: true,
+        show_whatsapp: true,
+        show_instagram: false,
+        whatsapp: `11${index + 1}9000001`,
+        profession: 'Líder',
+        is_new: false,
+        is_church_admin: true,
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 85)
       });
 
       const churchSlug = slugify(church.city || church.name);
@@ -213,23 +332,55 @@ async function seedDatabase() {
         }
       }
 
-      const membersPool = [adminUser, ...memberDocs];
+      const membersPool = [adminUser, secondaryAdminUser, ...memberDocs];
 
       const churchGroupsData = groupTemplates.map((template, gIndex) => ({
         ...template,
         church_id: church._id,
         name: `${template.name} ${church.city.split(' ')[0]}`,
         description: `${template.description} (${church.city})`,
-        created_at: new Date(Date.now() - (gIndex + 1) * 1000 * 60 * 60 * 6)
+        created_by: adminUser._id,
+        created_at: new Date(Date.now() - (gIndex + 1) * 1000 * 60 * 60 * 6),
+        is_active: true,
+        pending_requests: []
       }));
 
       const createdGroups = await Group.insertMany(churchGroupsData);
       const membershipDocs = [];
 
-      for (const group of createdGroups) {
-        const randomMembers = shuffleArray(memberDocs).slice(0, 4 + (group.type === 'CELL' ? 1 : 0));
+      for (const [groupIndex, group] of createdGroups.entries()) {
+        // Definir número de membros por grupo (variando entre 5 e 10)
+        const numMembers = 5 + Math.floor(Math.random() * 6);
+        const randomMembers = shuffleArray(memberDocs).slice(0, numMembers);
+        
+        // Todos os grupos têm o admin principal como membro
         const groupMembers = [adminUser, ...randomMembers];
+        
+        // Definir admins do grupo
+        let groupAdmins = [adminUser._id]; // Admin da igreja é sempre admin do grupo
+        
+        // Para alguns grupos, adicionar o segundo admin da igreja
+        if (groupIndex % 2 === 0) {
+          groupAdmins.push(secondaryAdminUser._id);
+          if (!groupMembers.includes(secondaryAdminUser)) {
+            groupMembers.push(secondaryAdminUser);
+          }
+        }
+        
+        // Adicionar 1-2 membros regulares como admins do grupo
+        const potentialGroupAdmins = randomMembers.slice(0, Math.min(2, randomMembers.length));
+        potentialGroupAdmins.forEach(member => {
+          if (Math.random() > 0.5) {
+            groupAdmins.push(member._id);
+          }
+        });
 
+        // Atualizar o grupo com os admins
+        await Group.findByIdAndUpdate(group._id, {
+          admins: groupAdmins
+        });
+
+        // Criar membros do grupo
         groupMembers.forEach((member, memberIdx) => {
           membershipDocs.push({
             group_id: group._id,
@@ -237,7 +388,8 @@ async function seedDatabase() {
             joined_at: new Date(Date.now() - (memberIdx + 1) * 1000 * 60 * 60 * 2)
           });
 
-          if (member._id.toString() !== adminUser._id.toString()) {
+          if (member._id.toString() !== adminUser._id.toString() && 
+              member._id.toString() !== secondaryAdminUser._id.toString()) {
             const eventType =
               group.type === 'CELL' && memberIdx === 1 ? 'FIRST_CELL' : 'JOIN_GROUP';
             allEvents.push({
@@ -250,6 +402,7 @@ async function seedDatabase() {
           }
         });
 
+        // Atualizar cell_id para membros de células
         if (group.type === 'CELL') {
           const idsToUpdate = groupMembers.map((member) => member._id);
           await User.updateMany(
@@ -262,9 +415,10 @@ async function seedDatabase() {
       await GroupMember.insertMany(membershipDocs);
 
       console.log(
-        `   • ${memberDocs.length + 1} membros (${adminUser.name} + ${memberDocs.length})`
+        `   • ${memberDocs.length + 2} membros (${adminUser.name}, ${secondaryAdminUser.name} + ${memberDocs.length})`
       );
-      console.log(`   • ${createdGroups.length} grupos criados`);
+      console.log(`   • ${createdGroups.length} grupos criados (com admins de grupo definidos)`);
+      console.log(`   • Todos os grupos têm links do WhatsApp configurados`);
     }
 
     if (allEvents.length > 0) {
@@ -275,9 +429,12 @@ async function seedDatabase() {
     console.log('\n🎉 Database seeded successfully!');
     console.log('📋 Summary:');
     console.log(`   Churches: ${churchesData.length}`);
-    console.log(`   Members per church: ${memberProfiles.length + 1}`);
+    console.log(`   Church Admins per church: 2 (principal + secundário)`);
+    console.log(`   Members per church: ${memberProfiles.length + 2}`);
     console.log(`   Groups per church: ${groupTemplates.length}`);
     console.log(`   Interest Tags: ${interestCount}`);
+    console.log('\n📱 WhatsApp Links: Todos os grupos têm links configurados');
+    console.log('👥 Group Admins: Cada grupo tem 2-4 admins (incluindo admins da igreja)');
 
     await mongoose.disconnect();
     console.log('\n✅ Disconnected from MongoDB');
@@ -288,4 +445,3 @@ async function seedDatabase() {
 }
 
 seedDatabase();
-

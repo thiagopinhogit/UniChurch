@@ -62,6 +62,8 @@ export const removeUserInterest = (userId, interestTagId) =>
   api.delete(`/users/${userId}/interests/${interestTagId}`);
 export const sendWelcome = (userId, fromUserId, eventId) => 
   api.post(`/users/${userId}/welcome`, { from_user_id: fromUserId, event_id: eventId });
+export const toggleChurchAdmin = (userId) =>
+  api.patch(`/users/${userId}/toggle-admin`);
 
 // Groups
 export const getChurchGroups = (churchId, type) => 
@@ -75,13 +77,15 @@ export const joinGroup = (groupId, userId) =>
 export const leaveGroup = (groupId, userId) => 
   api.post(`/groups/${groupId}/leave`, { user_id: userId });
 export const requestJoinGroup = (groupId, userId) =>
-  api.post(`/groups/${groupId}/request`, { user_id: userId });
+  api.post(`/groups/${groupId}/request-join`, { user_id: userId });
 export const approveJoinRequest = (groupId, userId) =>
-  api.post(`/groups/${groupId}/approve`, { user_id: userId });
+  api.post(`/groups/${groupId}/approve-request`, { user_id: userId });
 export const rejectJoinRequest = (groupId, userId) =>
-  api.post(`/groups/${groupId}/reject`, { user_id: userId });
+  api.post(`/groups/${groupId}/reject-request`, { user_id: userId });
 export const getGroupPendingRequests = (groupId) =>
-  api.get(`/groups/${groupId}/requests`);
+  api.get(`/groups/${groupId}/pending-requests`);
+export const toggleGroupAdmin = (groupId, userId) =>
+  api.patch(`/groups/${groupId}/toggle-admin`, { user_id: userId });
 
 // Events
 export const getChurchEvents = (churchId, skip = 0, limit = 50) => 

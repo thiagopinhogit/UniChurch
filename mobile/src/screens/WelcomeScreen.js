@@ -14,13 +14,17 @@ export default function WelcomeScreen({ route, navigation }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          {church?.logo_url ? (
-            <Image source={{ uri: church.logo_url }} style={styles.logo} />
-          ) : (
-            <View style={styles.logoPlaceholder}>
-              <Text style={styles.logoText}>⛪</Text>
-            </View>
-          )}
+          <View style={styles.logoCircle}>
+            {church?.logo_url ? (
+              <Image source={{ uri: church.logo_url }} style={styles.logo} />
+            ) : (
+              <Image 
+                source={require('../../assets/logo-transparent.png')} 
+                style={styles.logo}
+                resizeMode="contain"
+              />
+            )}
+          </View>
         </View>
 
         <Text style={styles.title}>Bem-vindo à</Text>
@@ -71,18 +75,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoContainer: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
+    alignItems: 'center',
+  },
+  logoCircle: {
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    backgroundColor: colors.card,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   logo: {
     width: 100,
     height: 100,
-    borderRadius: borderRadius.xl,
+    borderRadius: 50,
   },
   logoPlaceholder: {
     width: 100,
     height: 100,
     borderRadius: borderRadius.xl,
-    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },

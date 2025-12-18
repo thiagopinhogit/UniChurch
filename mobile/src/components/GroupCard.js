@@ -62,6 +62,14 @@ export default function GroupCard({ group, onPress }) {
                   : (group.member_count || 0)}
               </Text>
             </View>
+            {group.whatsapp_link && (
+              <>
+                <View style={styles.separator} />
+                <View style={styles.metaItem}>
+                  <Ionicons name="logo-whatsapp" size={14} color={colors.success} />
+                </View>
+              </>
+            )}
           </View>
         </View>
         <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />

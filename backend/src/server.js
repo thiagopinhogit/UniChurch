@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const { getLocalIP, killProcessOnPort } = require('./utils/network');
+const { updateMobileConfig } = require('./utils/update-mobile-config');
 
 // Import routes
 const churchRoutes = require('./routes/church');
@@ -33,19 +35,48 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'UniChurch API is running' });
 });
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
+// Start server function
+async function startServer() {
+  try {
+    // Kill any process using port 3000
+    console.log('🔍 Checking port 3000...');
+    await killProcessOnPort(PORT);
+    
+    // Connect to MongoDB
+    console.log('🔌 Connecting to MongoDB...');
+    await mongoose.connect(process.env.MONGODB_URI);
     console.log('✅ Connected to MongoDB');
+    
+    // Get local IP
+    const localIP = getLocalIP();
+    
+    // Start server
     app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
-      console.log(`📱 Access from mobile: http://<your-ip>:${PORT}`);
+      console.log('\n' + '='.repeat(60));
+      console.log('🚀 UniChurch API Server Started');
+      console.log('='.repeat(60));
+      console.log(`📍 Local:    http://localhost:${PORT}`);
+      console.log(`📱 Network:  http://${localIP}:${PORT}`);
+      console.log('='.repeat(60));
+      console.log(`\n💡 Mobile API URL: http://${localIP}:${PORT}/api`);
+      
+      // Auto-update mobile config
+      try {
+        updateMobileConfig();
+      } catch (error) {
+        console.log('⚠️  Could not auto-update mobile config');
+      }
+      
+      console.log('');
     });
-  })
-  .catch((error) => {
-    console.error('❌ MongoDB connection error:', error);
+  } catch (error) {
+    console.error('❌ Server startup error:', error);
     process.exit(1);
-  });
+  }
+}
+
+// Start the server
+startServer();
 
 // Error handling
 app.use((err, req, res, next) => {
