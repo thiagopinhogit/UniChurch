@@ -59,9 +59,8 @@ export default function AdminDashboardScreen({ navigation }) {
         const savedState = await AsyncStorage.getItem(`${CHECKLIST_STORAGE_KEY}_${user.church_id}`);
         if (savedState) {
           const checklist = JSON.parse(savedState);
-          const allComplete = Object.values(checklist).every(item => item);
           setOnboardingChecklist(checklist);
-          setShowOnboarding(!allComplete); // Só mostra se não estiver tudo completo
+          setShowOnboarding(true); // Sempre mostra
         } else {
           // Primeira vez - mostrar onboarding
           setOnboardingChecklist({ location: false, groups: false, implantation: false });
@@ -205,9 +204,6 @@ export default function AdminDashboardScreen({ navigation }) {
 
   const handleDismissOnboarding = async () => {
     try {
-      // Marcar todos como completo para esconder
-      const completeChecklist = { location: true, groups: true, implantation: true };
-      await AsyncStorage.setItem(`${CHECKLIST_STORAGE_KEY}_${church._id}`, JSON.stringify(completeChecklist));
       setShowOnboarding(false);
     } catch (error) {
       console.error('Error dismissing onboarding:', error);
@@ -287,8 +283,8 @@ export default function AdminDashboardScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        {/* Onboarding Progress Card */}
-        {showOnboarding && onboardingChecklist && (
+        {/* Onboarding Progress Card - Topo (Incompleto) */}
+        {showOnboarding && onboardingChecklist && !Object.values(onboardingChecklist).every(item => item) && (
           <View style={styles.onboardingCard}>
             <View style={styles.onboardingHeader}>
               <View style={styles.onboardingTitleRow}>
@@ -397,6 +393,59 @@ export default function AdminDashboardScreen({ navigation }) {
             <Text style={styles.statLabelMedium}>Fora de Células</Text>
           </View>
         </View>
+
+        {/* Onboarding Complete Card - Final (Completo) */}
+        {showOnboarding && onboardingChecklist && Object.values(onboardingChecklist).every(item => item) && (
+          <View style={styles.onboardingCardComplete}>
+            <View style={styles.onboardingHeader}>
+              <View style={styles.onboardingTitleRow}>
+                <Text style={styles.onboardingIconComplete}>🎉</Text>
+                <View style={styles.onboardingTitleContent}>
+                  <Text style={styles.onboardingTitleComplete}>Configuração concluída!</Text>
+                  <Text style={styles.onboardingSubtitleComplete}>
+                    Sua igreja está pronta para conectar pessoas
+                  </Text>
+                </View>
+              </View>
+              <TouchableOpacity 
+                style={styles.dismissButton}
+                onPress={handleDismissOnboarding}
+              >
+                <Ionicons name="close" size={20} color={colors.success} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Complete Items */}
+            <View style={styles.onboardingItemsComplete}>
+              <View style={styles.onboardingItemComplete}>
+                <View style={styles.checkmarkCircle}>
+                  <Ionicons name="checkmark" size={16} color="white" />
+                </View>
+                <Text style={styles.onboardingItemTextComplete}>Localização configurada</Text>
+              </View>
+              <View style={styles.onboardingItemComplete}>
+                <View style={styles.checkmarkCircle}>
+                  <Ionicons name="checkmark" size={16} color="white" />
+                </View>
+                <Text style={styles.onboardingItemTextComplete}>Grupos organizados</Text>
+              </View>
+              <View style={styles.onboardingItemComplete}>
+                <View style={styles.checkmarkCircle}>
+                  <Ionicons name="checkmark" size={16} color="white" />
+                </View>
+                <Text style={styles.onboardingItemTextComplete}>Tutorial de implantação lido</Text>
+              </View>
+            </View>
+
+            <TouchableOpacity 
+              style={styles.onboardingButtonComplete}
+              onPress={handleOpenChecklist}
+            >
+              <Text style={styles.onboardingButtonTextComplete}>Revisar configuração</Text>
+              <Ionicons name="arrow-forward" size={18} color={colors.success} />
+            </TouchableOpacity>
+          </View>
+        )}
           </>
         }
       />
@@ -674,6 +723,75 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     fontWeight: fontWeight.semibold,
     color: 'white',
+    letterSpacing: -0.2,
+  },
+
+  // Onboarding Card Complete (Final)
+  onboardingCardComplete: {
+    backgroundColor: colors.success + '08',
+    borderRadius: borderRadius.xl,
+    padding: spacing.lg,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    borderWidth: 2,
+    borderColor: colors.success + '30',
+    ...shadows.small,
+  },
+  onboardingIconComplete: {
+    fontSize: 32,
+    marginRight: spacing.sm,
+  },
+  onboardingTitleComplete: {
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.bold,
+    color: colors.success,
+    marginBottom: spacing.xxs,
+    letterSpacing: -0.3,
+  },
+  onboardingSubtitleComplete: {
+    fontSize: fontSize.sm,
+    color: colors.textSecondary,
+    letterSpacing: -0.1,
+  },
+  onboardingItemsComplete: {
+    marginTop: spacing.md,
+    marginBottom: spacing.md,
+    gap: spacing.sm,
+  },
+  onboardingItemComplete: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  checkmarkCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.success,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  onboardingItemTextComplete: {
+    fontSize: fontSize.sm,
+    color: colors.text,
+    flex: 1,
+    letterSpacing: -0.1,
+  },
+  onboardingButtonComplete: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.card,
+    borderWidth: 2,
+    borderColor: colors.success,
+    padding: spacing.md,
+    borderRadius: borderRadius.lg,
+    gap: spacing.sm,
+  },
+  onboardingButtonTextComplete: {
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.semibold,
+    color: colors.success,
     letterSpacing: -0.2,
   },
 });

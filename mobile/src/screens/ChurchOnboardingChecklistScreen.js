@@ -71,27 +71,16 @@ export default function ChurchOnboardingChecklistScreen({ navigation, route }) {
   };
 
   const handleGroupsSetup = () => {
-    Alert.alert(
-      'Grupos e Ministérios',
-      'Deseja configurar grupos agora ou deixar para depois?',
-      [
-        {
-          text: 'Deixar para depois',
-          onPress: () => markAsComplete('groups'),
-          style: 'cancel'
-        },
-        {
-          text: 'Configurar agora',
-          onPress: () => {
-            navigation.navigate('AdminApp', { 
-              screen: 'Grupos',
-              params: { fromOnboarding: true }
-            });
-            markAsComplete('groups');
-          }
-        }
-      ]
-    );
+    navigation.navigate('ChurchOnboardingGroups', {
+      church,
+      onComplete: () => {
+        markAsComplete('groups');
+      },
+      onSkip: () => {
+        // Não marca como completo, apenas volta
+        console.log('Grupos pulados');
+      }
+    });
   };
 
   const handleImplantationGuide = () => {
@@ -99,6 +88,10 @@ export default function ChurchOnboardingChecklistScreen({ navigation, route }) {
       church,
       onComplete: () => {
         markAsComplete('implantation');
+      },
+      onSkip: () => {
+        // Não marca como completo, apenas volta
+        console.log('Tutorial pulado');
       }
     });
   };
@@ -239,7 +232,7 @@ function ChecklistItem({ icon, title, description, completed, onPress, priority,
         completed && styles.checklistItemCompleted
       ]}
       onPress={onPress}
-      disabled={completed}
+      activeOpacity={0.7}
     >
       <View style={styles.checklistItemLeft}>
         <View style={[
@@ -260,7 +253,7 @@ function ChecklistItem({ icon, title, description, completed, onPress, priority,
             styles.checklistItemTitle,
             completed && styles.checklistItemTitleCompleted
           ]}>
-            {title}
+            {title} {completed && '✓'}
           </Text>
           {badge && (
             <View style={styles.badge}>
@@ -272,7 +265,7 @@ function ChecklistItem({ icon, title, description, completed, onPress, priority,
           )}
         </View>
         <Text style={styles.checklistItemDescription}>
-          {description}
+          {completed ? 'Clique para revisar' : description}
         </Text>
       </View>
 
@@ -365,7 +358,6 @@ const styles = StyleSheet.create({
     borderColor: colors.borderLight,
   },
   checklistItemCompleted: {
-    opacity: 0.6,
     borderColor: colors.success + '30',
     backgroundColor: colors.success + '05',
   },
@@ -403,8 +395,7 @@ const styles = StyleSheet.create({
     marginRight: spacing.xs,
   },
   checklistItemTitleCompleted: {
-    textDecorationLine: 'line-through',
-    color: colors.textSecondary,
+    color: colors.success,
   },
   checklistItemDescription: {
     fontSize: fontSize.sm,

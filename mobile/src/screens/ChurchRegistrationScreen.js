@@ -116,12 +116,13 @@ export default function ChurchRegistrationScreen({ navigation }) {
       
       // Autenticar automaticamente o administrador
       const adminUser = {
-        _id: response.data._id,
+        _id: response.data.admin_user_id || response.data._id, // Usa admin_user_id se disponível
         name: response.data.admin_name,
         email: response.data.admin_email,
         church_id: response.data._id,
         church_name: response.data.name,
         isAdmin: true,
+        is_church_admin: true,
         qr_code_id: response.data.qr_code_id
       };
 

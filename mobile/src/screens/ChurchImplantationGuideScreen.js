@@ -56,11 +56,13 @@ const IMPLANTATION_STEPS = [
     details: [
       'Cada supervisor reúne seus líderes de célula/grupos',
       'Apresente o app de forma prática e interativa',
+      '⭐ IMPORTANTE: Cada líder deve CRIAR o grupo da sua célula no app',
       'Demonstre como cadastrar membros usando o QR Code',
       'Mostre como criar eventos e compartilhar conteúdo',
-      'Oriente sobre privacidade e respeito aos dados dos membros'
+      'Oriente sobre privacidade e respeito aos dados dos membros',
+      'Verifique se cada líder criou o grupo da célula antes de sair'
     ],
-    tips: '💡 Os líderes são a chave! São eles que têm contato direto com cada membro.',
+    tips: '💡 Os líderes são a chave! Cada líder DEVE criar o grupo da sua célula no app antes do lançamento.',
     impact: 'Crítico'
   },
   {
@@ -74,9 +76,11 @@ const IMPLANTATION_STEPS = [
       'Faça o cadastro IN LOCO: todos baixam e se cadastram juntos',
       'Use o QR Code da igreja para agilizar o processo',
       'Ajude os membros a completarem seus perfis e interesses',
+      '⭐ IMPORTANTE: Todos devem SOLICITAR ENTRADA no grupo da célula',
+      'O líder aprova as solicitações imediatamente',
       'Incentive conexões imediatas entre membros com interesses similares'
     ],
-    tips: '💡 O cadastro em grupo gera entusiasmo e adoção imediata. Não envie o link depois!',
+    tips: '💡 O cadastro em grupo gera entusiasmo! E todos já ficam conectados à célula imediatamente.',
     impact: 'Muito Alto'
   },
   {
@@ -99,7 +103,7 @@ const IMPLANTATION_STEPS = [
 ];
 
 export default function ChurchImplantationGuideScreen({ navigation, route }) {
-  const { church, onComplete } = route.params || {};
+  const { church, onComplete, onSkip } = route.params || {};
   const [expandedStep, setExpandedStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState([]);
 
@@ -114,9 +118,17 @@ export default function ChurchImplantationGuideScreen({ navigation, route }) {
   };
 
   const handleFinish = () => {
-    if (onComplete) {
-      onComplete();
+    if (allStepsRead) {
+      // Leu todos os passos - marca como completo
+      if (onComplete) {
+        onComplete();
+      }
+      navigation.goBack();
     } else {
+      // Não leu tudo - apenas pula (NÃO marca como completo)
+      if (onSkip) {
+        onSkip();
+      }
       navigation.goBack();
     }
   };

@@ -40,12 +40,13 @@ export default function ChurchAdminLoginScreen({ navigation }) {
 
       // Save church admin data as user
       const adminUser = {
-        _id: response.data.church._id,
+        _id: response.data.church.admin_user_id || response.data.church._id, // Usa admin_user_id se disponível
         name: response.data.church.admin_name,
         email: response.data.church.admin_email,
         church_id: response.data.church._id,
         church_name: response.data.church.name,
         isAdmin: true,
+        is_church_admin: true,
         qr_code_id: response.data.church.qr_code_id
       };
 

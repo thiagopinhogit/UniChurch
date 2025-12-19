@@ -48,11 +48,19 @@ router.get('/:id', async (req, res) => {
       .limit(20)
       .lean();
 
-    group.members = members.map(m => m.user_id);
+    group.members = members.map(m => m.user_id).filter(u => u != null);
     group.member_count = await GroupMember.countDocuments({ group_id: group._id });
+
+    console.log('📦 GET Group:', {
+      id: group._id,
+      name: group.name,
+      members_array_length: group.members.length,
+      member_count: group.member_count
+    });
 
     res.json(group);
   } catch (error) {
+    console.error('❌ Erro ao buscar grupo:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -60,10 +68,58 @@ router.get('/:id', async (req, res) => {
 // Create group
 router.post('/', async (req, res) => {
   try {
-    const group = new Group(req.body);
+    const { creator_id, ...groupData } = req.body;
+    
+    const group = new Group(groupData);
     await group.save();
-    res.status(201).json(group);
+    
+    // If creator_id is provided, add them as member and admin
+    if (creator_id) {
+      // Add as member
+      const groupMember = new GroupMember({
+        group_id: group._id,
+        user_id: creator_id
+      });
+      await groupMember.save();
+      
+      // Add as admin of the group
+      group.admins.push(creator_id);
+      await group.save();
+      
+      // If it's a cell, update user's cell
+      if (group.type === 'CELL') {
+        await User.findByIdAndUpdate(creator_id, { cell_id: group._id });
+      }
+      
+      // Create event for mural
+      const event = new Event({
+        church_id: group.church_id,
+        user_id: creator_id,
+        type: 'JOIN_GROUP',
+        group_id: group._id
+      });
+      await event.save();
+    }
+    
+    // SEMPRE retorna com membros populados
+    const members = await GroupMember.find({ group_id: group._id })
+      .populate('user_id', 'name photo_url')
+      .lean();
+    
+    // Converte para objeto com os campos necessários
+    const groupResponse = group.toObject();
+    groupResponse.members = members.map(m => m.user_id).filter(u => u != null);
+    groupResponse.member_count = members.length;
+    
+    console.log('✅ Grupo criado:', {
+      name: groupResponse.name,
+      members_count: groupResponse.members.length,
+      member_count: groupResponse.member_count
+    });
+    
+    res.status(201).json(groupResponse);
   } catch (error) {
+    console.error('❌ Erro ao criar grupo:', error);
     res.status(400).json({ error: error.message });
   }
 });

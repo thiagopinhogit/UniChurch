@@ -46,6 +46,7 @@ import AdminManagementScreen from './src/screens/AdminManagementScreen';
 // Church Onboarding Screens
 import ChurchOnboardingWelcomeScreen from './src/screens/ChurchOnboardingWelcomeScreen';
 import ChurchOnboardingChecklistScreen from './src/screens/ChurchOnboardingChecklistScreen';
+import ChurchOnboardingGroupsScreen from './src/screens/ChurchOnboardingGroupsScreen';
 import ChurchImplantationGuideScreen from './src/screens/ChurchImplantationGuideScreen';
 
 const Stack = createStackNavigator();
@@ -253,6 +254,14 @@ export default function App() {
             component={ChurchOnboardingChecklistScreen}
             options={{ 
               title: 'Configuração da Igreja',
+              headerBackTitle: 'Voltar'
+            }}
+          />
+          <Stack.Screen 
+            name="ChurchOnboardingGroups" 
+            component={ChurchOnboardingGroupsScreen}
+            options={{ 
+              title: 'Organizar Grupos',
               headerBackTitle: 'Voltar'
             }}
           />

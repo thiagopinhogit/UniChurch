@@ -52,9 +52,7 @@ export default function CreateGroupScreen({ navigation }) {
         whatsapp_link: whatsappLink.trim(),
         type: selectedType,
         church_id: user.church_id,
-        created_by: user._id,
-        members: [user._id], // Criador já entra como membro
-        admins: [user._id], // Criador é automaticamente admin
+        creator_id: user._id, // Backend vai adicionar automaticamente como membro e admin
         is_private: isPrivate,
         pending_requests: []
       };
@@ -71,7 +69,10 @@ export default function CreateGroupScreen({ navigation }) {
         [
           {
             text: 'OK',
-            onPress: () => navigation.goBack()
+            onPress: () => {
+              // Passa apenas o ID para forçar reload dos dados atualizados
+              navigation.replace('GroupDetail', { groupId: response.data._id });
+            }
           }
         ]
       );

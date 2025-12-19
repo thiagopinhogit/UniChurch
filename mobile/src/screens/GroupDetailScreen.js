@@ -34,6 +34,7 @@ export default function GroupDetailScreen({ route, navigation }) {
 
   const loadData = async () => {
     try {
+      setLoading(true); // Adiciona loading ao recarregar
       const user = await getUser();
       setCurrentUser(user);
 
@@ -43,8 +44,16 @@ export default function GroupDetailScreen({ route, navigation }) {
         throw new Error('Group ID not provided');
       }
 
+      // SEMPRE busca do servidor para ter dados atualizados
       const response = await getGroupById(id);
       const groupData = response.data;
+      
+      console.log('📦 Group data loaded:', {
+        name: groupData.name,
+        members: groupData.members?.length || 0,
+        member_count: groupData.member_count
+      });
+      
       setGroup(groupData);
 
       // Admin da igreja sempre é membro e admin de todos os grupos
@@ -413,7 +422,7 @@ export default function GroupDetailScreen({ route, navigation }) {
           </View>
         )}
 
-        {group.members && group.members.length > 0 && (
+        {group.members && group.members.length > 0 ? (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>
               Membros ({group.members.length})
@@ -467,6 +476,19 @@ export default function GroupDetailScreen({ route, navigation }) {
                 💡 Pressione e segure em um membro para promover/remover como admin do grupo
               </Text>
             )}
+          </View>
+        ) : (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Membros</Text>
+            <View style={styles.emptyMembersContainer}>
+              <Ionicons name="people-outline" size={48} color={colors.textTertiary} />
+              <Text style={styles.emptyMembersText}>Nenhum membro ainda</Text>
+              <Text style={styles.emptyMembersSubtext}>
+                {isAdmin 
+                  ? 'Compartilhe o grupo com os membros da igreja para que possam entrar'
+                  : 'Seja o primeiro a entrar neste grupo!'}
+              </Text>
+            </View>
           </View>
         )}
 
@@ -698,6 +720,26 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.textSecondary,
     marginTop: spacing.sm,
+    letterSpacing: -0.1,
+  },
+  emptyMembersContainer: {
+    alignItems: 'center',
+    paddingVertical: spacing.xl * 2,
+    paddingHorizontal: spacing.lg,
+  },
+  emptyMembersText: {
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.semibold,
+    color: colors.textSecondary,
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
+    letterSpacing: -0.3,
+  },
+  emptyMembersSubtext: {
+    fontSize: fontSize.sm,
+    color: colors.textTertiary,
+    textAlign: 'center',
+    lineHeight: 20,
     letterSpacing: -0.1,
   },
   adminHint: {

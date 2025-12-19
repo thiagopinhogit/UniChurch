@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Church = require('../models/Church');
+const User = require('../models/User');
 
 // Admin login
 router.post('/admin/login', async (req, res) => {
@@ -25,9 +26,29 @@ router.post('/admin/login', async (req, res) => {
       return res.status(401).json({ error: 'Credenciais inválidas' });
     }
 
-    // Return church data without password
+    // Criar ou buscar User correspondente ao admin
+    let adminUser = await User.findOne({ 
+      church_id: church._id, 
+      email: church.admin_email 
+    });
+
+    if (!adminUser) {
+      // Criar User para o admin
+      adminUser = new User({
+        church_id: church._id,
+        name: church.admin_name,
+        email: church.admin_email,
+        is_church_admin: true,
+        show_profile: true
+      });
+      await adminUser.save();
+      console.log('✅ User criado para admin da igreja:', adminUser._id);
+    }
+
+    // Return church data without password + user_id
     const churchData = church.toObject();
     delete churchData.admin_password;
+    churchData.admin_user_id = adminUser._id; // ID do User do admin
 
     res.json({
       message: 'Login realizado com sucesso',
@@ -167,9 +188,25 @@ router.post('/', async (req, res) => {
     const church = new Church(req.body);
     await church.save();
     
-    // Return without password
+    // Criar User para o admin automaticamente
+    const adminUser = new User({
+      church_id: church._id,
+      name: church.admin_name,
+      email: church.admin_email,
+      is_church_admin: true,
+      show_profile: true
+    });
+    await adminUser.save();
+    
+    console.log('✅ Igreja e User admin criados:', {
+      church_id: church._id,
+      admin_user_id: adminUser._id
+    });
+    
+    // Return without password + add admin_user_id
     const churchData = church.toObject();
     delete churchData.admin_password;
+    churchData.admin_user_id = adminUser._id;
     
     res.status(201).json(churchData);
   } catch (error) {
