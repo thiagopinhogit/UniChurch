@@ -17,7 +17,7 @@ import api from '../services/api';
 import { saveChurch } from '../services/storage';
 
 export default function ChurchLocationScreen({ route, navigation }) {
-  const { church } = route.params || {};
+  const { church, onComplete } = route.params || {};
   const webViewRef = useRef(null);
   const [cep, setCep] = useState('');
   const [searchingCep, setSearchingCep] = useState(false);
@@ -412,7 +412,15 @@ export default function ChurchLocationScreen({ route, navigation }) {
       await saveChurch(response.data);
 
       Alert.alert('Sucesso!', 'Localização atualizada', [
-        { text: 'OK', onPress: () => navigation.goBack() }
+        { 
+          text: 'OK', 
+          onPress: () => {
+            if (onComplete) {
+              onComplete(); // Notifica o checklist
+            }
+            navigation.goBack();
+          } 
+        }
       ]);
     } catch (error) {
       console.error('Error saving:', error);

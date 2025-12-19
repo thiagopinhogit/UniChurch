@@ -43,6 +43,11 @@ import CreateGroupScreen from './src/screens/CreateGroupScreen';
 import EditGroupScreen from './src/screens/EditGroupScreen';
 import AdminManagementScreen from './src/screens/AdminManagementScreen';
 
+// Church Onboarding Screens
+import ChurchOnboardingWelcomeScreen from './src/screens/ChurchOnboardingWelcomeScreen';
+import ChurchOnboardingChecklistScreen from './src/screens/ChurchOnboardingChecklistScreen';
+import ChurchImplantationGuideScreen from './src/screens/ChurchImplantationGuideScreen';
+
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -198,7 +203,7 @@ export default function App() {
             name="OnboardingSocial" 
             component={OnboardingSocialScreen}
             options={{ 
-              title: 'Redes Sociais',
+              title: 'Instagram',
               headerBackTitle: 'Voltar'
             }}
           />
@@ -234,6 +239,29 @@ export default function App() {
             options={{ 
               title: 'QR Code da Igreja',
               headerBackTitle: 'Voltar',
+            }}
+          />
+
+          {/* Church Onboarding Flow */}
+          <Stack.Screen 
+            name="ChurchOnboardingWelcome" 
+            component={ChurchOnboardingWelcomeScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="ChurchOnboardingChecklist" 
+            component={ChurchOnboardingChecklistScreen}
+            options={{ 
+              title: 'Configuração da Igreja',
+              headerBackTitle: 'Voltar'
+            }}
+          />
+          <Stack.Screen 
+            name="ChurchImplantationGuide" 
+            component={ChurchImplantationGuideScreen}
+            options={{ 
+              title: 'Guia de Implantação',
+              headerBackTitle: 'Voltar'
             }}
           />
           

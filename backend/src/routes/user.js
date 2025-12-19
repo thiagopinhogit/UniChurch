@@ -6,9 +6,113 @@ const UserInterest = require('../models/UserInterest');
 const GroupMember = require('../models/GroupMember');
 const Event = require('../models/Event');
 
+// Helper function to get Instagram profile photo
+async function getInstagramPhotoUrl(username) {
+  if (!username || username.length < 2) return null;
+  
+  try {
+    const cleanUsername = username.replace('@', '').trim();
+    const fetch = (await import('node-fetch')).default;
+    
+    // Método 1: Tenta buscar via página pública do Instagram
+    // Esta abordagem faz scraping simples da página pública
+    const profileUrl = `https://www.instagram.com/${cleanUsername}/?__a=1&__d=dis`;
+    
+    console.log(`Tentando buscar foto do perfil do Instagram: @${cleanUsername}`);
+    
+    const response = await fetch(profileUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+      },
+      timeout: 10000
+    });
+    
+    if (response.ok) {
+      const contentType = response.headers.get('content-type');
+      
+      // Se retornar JSON (método __a=1)
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        const profilePicUrl = data?.graphql?.user?.profile_pic_url_hd || 
+                            data?.graphql?.user?.profile_pic_url ||
+                            data?.user?.profile_pic_url_hd ||
+                            data?.user?.profile_pic_url;
+        
+        if (profilePicUrl) {
+          console.log(`✅ Foto do Instagram encontrada: @${cleanUsername}`);
+          return profilePicUrl;
+        }
+      } else {
+        // Se retornar HTML, faz scraping básico
+        const html = await response.text();
+        
+        // Procura por padrões de URL da foto de perfil no HTML
+        const patterns = [
+          /"profile_pic_url_hd":"([^"]+)"/,
+          /"profile_pic_url":"([^"]+)"/,
+          /property="og:image"\s+content="([^"]+)"/,
+          /"profilePage_[^"]*":"([^"]+)"/
+        ];
+        
+        for (const pattern of patterns) {
+          const match = html.match(pattern);
+          if (match && match[1]) {
+            const photoUrl = match[1].replace(/\\u0026/g, '&').replace(/\\\//g, '/');
+            console.log(`✅ Foto do Instagram encontrada via scraping: @${cleanUsername}`);
+            return photoUrl;
+          }
+        }
+      }
+    }
+    
+    // Método 2: Fallback - Tenta usar serviço de proxy de imagens do Instagram
+    // Esta URL geralmente funciona para perfis públicos
+    const fallbackUrl = `https://i.instagram.com/api/v1/users/web_profile_info/?username=${cleanUsername}`;
+    
+    try {
+      const fallbackResponse = await fetch(fallbackUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'X-Ig-App-Id': '936619743392459'
+        },
+        timeout: 10000
+      });
+      
+      if (fallbackResponse.ok) {
+        const data = await fallbackResponse.json();
+        const profilePicUrl = data?.data?.user?.profile_pic_url_hd || 
+                            data?.data?.user?.profile_pic_url;
+        
+        if (profilePicUrl) {
+          console.log(`✅ Foto do Instagram encontrada via API: @${cleanUsername}`);
+          return profilePicUrl;
+        }
+      }
+    } catch (fallbackError) {
+      console.log('Fallback method failed:', fallbackError.message);
+    }
+    
+    console.log(`❌ Não foi possível buscar foto do Instagram: @${cleanUsername}`);
+  } catch (error) {
+    console.log(`❌ Erro ao buscar foto do Instagram: ${error.message}`);
+  }
+  
+  return null;
+}
+
 // Create new user (onboarding)
 router.post('/', async (req, res) => {
   try {
+    // Se o usuário forneceu Instagram mas não photo_url, tenta buscar
+    if (req.body.instagram && !req.body.photo_url) {
+      const photoUrl = await getInstagramPhotoUrl(req.body.instagram);
+      if (photoUrl) {
+        req.body.photo_url = photoUrl;
+      }
+    }
+
     const user = new User(req.body);
     await user.save();
 

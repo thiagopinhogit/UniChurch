@@ -5,8 +5,7 @@ import {
   TextInput, 
   StyleSheet, 
   SafeAreaView, 
-  ScrollView,
-  TouchableOpacity
+  ScrollView
 } from 'react-native';
 import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../styles/theme';
 import Button from '../components/Button';
@@ -14,7 +13,6 @@ import Button from '../components/Button';
 export default function OnboardingWhatsAppScreen({ route, navigation }) {
   const { church, userData } = route.params;
   const [whatsapp, setWhatsapp] = useState('');
-  const [showWhatsApp, setShowWhatsApp] = useState(false);
 
   const formatPhoneNumber = (text) => {
     // Remove tudo que não é número
@@ -41,8 +39,7 @@ export default function OnboardingWhatsAppScreen({ route, navigation }) {
       church,
       userData: {
         ...userData,
-        whatsapp: whatsapp.replace(/\D/g, ''), // Salva apenas números
-        showWhatsApp: showWhatsApp
+        whatsapp: whatsapp.replace(/\D/g, '') // Salva apenas números
       }
     });
   };
@@ -52,8 +49,7 @@ export default function OnboardingWhatsAppScreen({ route, navigation }) {
       church,
       userData: {
         ...userData,
-        whatsapp: '',
-        showWhatsApp: false
+        whatsapp: ''
       }
     });
   };
@@ -61,9 +57,9 @@ export default function OnboardingWhatsAppScreen({ route, navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Adicione seu WhatsApp</Text>
+        <Text style={styles.title}>Seu WhatsApp</Text>
         <Text style={styles.subtitle}>
-          Facilite o contato com outros membros
+          Facilite o contato com outros membros da igreja
         </Text>
       </View>
 
@@ -87,6 +83,7 @@ export default function OnboardingWhatsAppScreen({ route, navigation }) {
               placeholderTextColor={colors.textSecondary}
               keyboardType="phone-pad"
               maxLength={15}
+              autoFocus
             />
             {whatsapp.length >= 14 && (
               <Text style={styles.checkIconInline}>✅</Text>
@@ -94,29 +91,17 @@ export default function OnboardingWhatsAppScreen({ route, navigation }) {
           </View>
         </View>
 
-        {/* Opção de visibilidade */}
-        <TouchableOpacity 
-          style={styles.visibilityOption}
-          onPress={() => setShowWhatsApp(!showWhatsApp)}
-          activeOpacity={0.7}
-        >
-          <View style={styles.checkbox}>
-            {showWhatsApp && <View style={styles.checkboxFilled} />}
-          </View>
-          <View style={styles.visibilityText}>
-            <Text style={styles.visibilityTitle}>
-              Mostrar meu WhatsApp no perfil
-            </Text>
-            <Text style={styles.visibilitySubtext}>
-              Outros membros poderão ver e entrar em contato
-            </Text>
-          </View>
-        </TouchableOpacity>
-
         <View style={styles.infoBox}>
           <Text style={styles.infoIcon}>💡</Text>
           <Text style={styles.infoText}>
-            Adicionar WhatsApp facilita a conexão com outros membros da igreja
+            Você poderá escolher se quer mostrar seu WhatsApp para outros membros
+          </Text>
+        </View>
+
+        <View style={styles.privacyNote}>
+          <Text style={styles.privacyIcon}>🔒</Text>
+          <Text style={styles.privacyText}>
+            Suas informações de contato são privadas por padrão
           </Text>
         </View>
       </ScrollView>
@@ -178,7 +163,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.lg,
     padding: spacing.md + 4,
     borderWidth: 2,
-    borderColor: colors.success,
+    borderColor: colors.primary,
     ...shadows.medium,
   },
   whatsappInputSuccess: {
@@ -199,53 +184,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginLeft: spacing.sm,
   },
-  visibilityOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.card,
-    borderRadius: borderRadius.md,
-    padding: spacing.md + 2,
-    marginBottom: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    ...shadows.small,
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: spacing.xs,
-    borderWidth: 2,
-    borderColor: colors.primary,
-    marginRight: spacing.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkboxFilled: {
-    width: 14,
-    height: 14,
-    borderRadius: spacing.xs - 2,
-    backgroundColor: colors.primary,
-  },
-  visibilityText: {
-    flex: 1,
-  },
-  visibilityTitle: {
-    fontSize: fontSize.md,
-    fontWeight: fontWeight.semibold,
-    color: colors.text,
-    marginBottom: spacing.xs - 2,
-  },
-  visibilitySubtext: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-    lineHeight: 18,
-  },
   infoBox: {
     flexDirection: 'row',
     backgroundColor: colors.card,
-    padding: spacing.md,
+    padding: spacing.md + 2,
     borderRadius: borderRadius.md,
-    marginTop: spacing.lg,
+    marginBottom: spacing.md,
     borderWidth: 1,
     borderColor: colors.primaryLight + '30',
   },
@@ -259,9 +203,26 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     lineHeight: 20,
   },
+  privacyNote: {
+    flexDirection: 'row',
+    backgroundColor: colors.card,
+    padding: spacing.md + 2,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  privacyIcon: {
+    fontSize: 20,
+    marginRight: spacing.sm,
+  },
+  privacyText: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    color: colors.textSecondary,
+    lineHeight: 20,
+  },
   footer: {
     padding: spacing.lg,
     paddingTop: spacing.md,
   },
 });
-

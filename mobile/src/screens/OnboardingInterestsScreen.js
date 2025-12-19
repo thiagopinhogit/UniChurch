@@ -50,7 +50,7 @@ export default function OnboardingInterestsScreen({ route, navigation }) {
       return;
     }
 
-    navigation.navigate('OnboardingSocial', {
+    navigation.navigate('OnboardingWhatsApp', {
       church,
       userData: {
         ...userData,

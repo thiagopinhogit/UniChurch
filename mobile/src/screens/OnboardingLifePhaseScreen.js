@@ -45,7 +45,7 @@ export default function OnboardingLifePhaseScreen({ route, navigation }) {
       ...selectedPhases
     ];
 
-    // Navega para redes sociais passando todos os dados
+    // Navega para Instagram/Social passando todos os dados
     navigation.navigate('OnboardingSocial', {
       church,
       userData: {

@@ -7,8 +7,7 @@ import {
   SafeAreaView, 
   ScrollView,
   Image,
-  ActivityIndicator,
-  TouchableOpacity
+  ActivityIndicator
 } from 'react-native';
 import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../styles/theme';
 import Button from '../components/Button';
@@ -23,59 +22,25 @@ export default function OnboardingSocialScreen({ route, navigation }) {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (instagram && instagram.length > 2) {
-        fetchInstagramData(instagram);
+        // Apenas valida que o username tem mais de 2 caracteres
+        setInstagramData({
+          username: instagram.replace('@', '').trim(),
+          isValid: true
+        });
       } else {
         setInstagramData(null);
       }
-    }, 800); // Espera 800ms após parar de digitar
+    }, 500);
 
     return () => clearTimeout(timeoutId);
   }, [instagram]);
-
-  const fetchInstagramData = async (username) => {
-    // Remove @ se o usuário digitou
-    const cleanUsername = username.replace('@', '').trim();
-    if (!cleanUsername) return;
-
-    setLoadingInstagram(true);
-    try {
-      // Método mais simples e confiável - apenas a foto de perfil
-      // A foto pública do Instagram pode ser acessada diretamente
-      const profilePicUrl = `https://www.instagram.com/${cleanUsername}/`;
-      
-      // Tenta verificar se o perfil existe fazendo um fetch simples
-      const response = await fetch(profilePicUrl, { method: 'HEAD' });
-      
-      if (response.ok) {
-        // Se o perfil existe, usa a URL padrão da foto
-        setInstagramData({
-          username: cleanUsername,
-          profilePic: `https://instagram.com/${cleanUsername}/profilepic/`,
-          fullName: null,
-          isVerified: false
-        });
-      }
-    } catch (error) {
-      console.log('Erro ao buscar Instagram:', error);
-      // Mesmo com erro, tenta mostrar o que conseguir
-      setInstagramData({
-        username: cleanUsername,
-        profilePic: `https://instagram.com/${cleanUsername}/profilepic/`,
-        fullName: null,
-        isVerified: false
-      });
-    } finally {
-      setLoadingInstagram(false);
-    }
-  };
 
   const handleNext = () => {
     navigation.navigate('OnboardingWhatsApp', {
       church,
       userData: {
         ...userData,
-        instagram: instagram.replace('@', '').trim(),
-        instagramData: instagramData
+        instagram: instagram.replace('@', '').trim()
       }
     });
   };
@@ -95,7 +60,7 @@ export default function OnboardingSocialScreen({ route, navigation }) {
       <View style={styles.header}>
         <Text style={styles.title}>Conecte seu Instagram</Text>
         <Text style={styles.subtitle}>
-          Sua foto será usada no perfil
+          Sua foto de perfil será importada automaticamente
         </Text>
       </View>
 
@@ -113,28 +78,22 @@ export default function OnboardingSocialScreen({ route, navigation }) {
             <Text style={styles.instagramIcon}>📸</Text>
             <View style={styles.inputWrapper}>
               <Text style={styles.atSymbol}>@</Text>
-          <TextInput
+              <TextInput
                 style={styles.instagramInput}
-            value={instagram}
+                value={instagram}
                 onChangeText={(text) => setInstagram(text.replace('@', ''))}
                 placeholder="seuusuario"
-            placeholderTextColor={colors.textSecondary}
-            autoCapitalize="none"
+                placeholderTextColor={colors.textSecondary}
+                autoCapitalize="none"
                 autoCorrect={false}
                 autoFocus
-          />
-        </View>
+              />
+            </View>
             {loadingInstagram && (
               <ActivityIndicator size="small" color={colors.primary} style={styles.inputLoader} />
             )}
             {instagramData && !loadingInstagram && (
-              <>
-                <Image 
-                  source={{ uri: instagramData.profilePic }} 
-                  style={styles.profilePicSmall}
-                />
-                <Text style={styles.checkIconInline}>✅</Text>
-              </>
+              <Text style={styles.checkIconInline}>✅</Text>
             )}
           </View>
         </View>
@@ -142,7 +101,14 @@ export default function OnboardingSocialScreen({ route, navigation }) {
         <View style={styles.infoBox}>
           <Text style={styles.infoIcon}>💡</Text>
           <Text style={styles.infoText}>
-            Sua foto do Instagram será usada no seu perfil
+            Sua foto do Instagram será usada automaticamente no seu perfil. Você pode alterá-la depois se quiser.
+          </Text>
+        </View>
+
+        <View style={styles.privacyNote}>
+          <Text style={styles.privacyIcon}>🔒</Text>
+          <Text style={styles.privacyText}>
+            Seu Instagram só será visível para outros membros se você escolher compartilhar
           </Text>
         </View>
       </ScrollView>
@@ -202,16 +168,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.card,
     borderRadius: borderRadius.lg,
-    padding: spacing.md,
+    padding: spacing.md + 4,
     borderWidth: 2,
     borderColor: colors.primary,
     ...shadows.medium,
   },
   instagramInputSuccess: {
     borderColor: colors.success,
+    backgroundColor: colors.success + '08',
   },
   instagramIcon: {
-    fontSize: 28,
+    fontSize: 32,
     marginRight: spacing.sm,
   },
   inputWrapper: {
@@ -220,37 +187,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   atSymbol: {
-    fontSize: fontSize.lg,
+    fontSize: fontSize.xl,
     fontWeight: fontWeight.semibold,
     color: colors.text,
     marginRight: spacing.xs,
   },
   instagramInput: {
     flex: 1,
-    fontSize: fontSize.lg,
+    fontSize: fontSize.xl,
     color: colors.text,
     padding: 0,
+    fontWeight: fontWeight.medium,
   },
   inputLoader: {
     marginLeft: spacing.sm,
   },
-  profilePicSmall: {
-    width: 36,
-    height: 36,
-    borderRadius: borderRadius.round,
-    backgroundColor: colors.border,
-    marginLeft: spacing.sm,
-  },
   checkIconInline: {
-    fontSize: 20,
-    marginLeft: spacing.xs,
+    fontSize: 24,
+    marginLeft: spacing.sm,
   },
   infoBox: {
     flexDirection: 'row',
     backgroundColor: colors.card,
     padding: spacing.md + 2,
     borderRadius: borderRadius.md,
-    marginTop: spacing.lg,
+    marginBottom: spacing.md,
     borderWidth: 1,
     borderColor: colors.primaryLight + '30',
   },
@@ -264,8 +225,27 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     lineHeight: 20,
   },
+  privacyNote: {
+    flexDirection: 'row',
+    backgroundColor: colors.card,
+    padding: spacing.md + 2,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  privacyIcon: {
+    fontSize: 20,
+    marginRight: spacing.sm,
+  },
+  privacyText: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    color: colors.textSecondary,
+    lineHeight: 20,
+  },
   footer: {
     padding: spacing.lg,
     paddingTop: spacing.md,
   },
 });
+

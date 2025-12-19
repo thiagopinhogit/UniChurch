@@ -18,9 +18,9 @@ export default function OnboardingPrivacyScreen({ route, navigation }) {
   const [loading, setLoading] = useState(false);
   const [privacy, setPrivacy] = useState({
     show_profile: true,
-    show_whatsapp: false,
-    show_instagram: false,
-    show_linkedin: false,
+    show_whatsapp: true,
+    show_instagram: true,
+    show_linkedin: true,
   });
 
   const togglePrivacy = (key) => {
@@ -31,6 +31,7 @@ export default function OnboardingPrivacyScreen({ route, navigation }) {
     setLoading(true);
     try {
       // Cria o usuário com todos os dados
+      // O backend vai buscar automaticamente a foto de perfil do Instagram se fornecido
       const userPayload = {
         church_id: church._id,
         name: userData.name,
@@ -39,6 +40,7 @@ export default function OnboardingPrivacyScreen({ route, navigation }) {
         ...privacy
       };
 
+      console.log('Creating user with payload:', userPayload);
       const userResponse = await createUser(userPayload);
       const newUser = userResponse.data;
 

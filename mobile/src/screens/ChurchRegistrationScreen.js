@@ -129,11 +129,11 @@ export default function ChurchRegistrationScreen({ navigation }) {
 
       Alert.alert(
         'Sucesso! 🎉',
-        `Igreja cadastrada com sucesso!\n\nBem-vindo ao painel administrativo de ${response.data.name}`,
+        `Igreja cadastrada com sucesso!`,
         [
           {
             text: 'Continuar',
-            onPress: () => navigation.replace('ChurchAdminPanel', { church: response.data })
+            onPress: () => navigation.replace('ChurchOnboardingWelcome', { church: response.data })
           }
         ]
       );
