@@ -1,0 +1,82 @@
+service: unichurch-api
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  memorySize: 512
+  timeout: 30
+  environment:
+    MONGODB_URI: ${env:MONGODB_URI}
+    JWT_SECRET: ${env:JWT_SECRET}
+    NODE_ENV: ${env:NODE_ENV, 'production'}
+  
+  # IAM Role Statements (add permissions as needed)
+  iam:
+    role:
+      statements:
+        # Add S3 permissions if you're using S3 for file uploads
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:DeleteObject
+          Resource: "arn:aws:s3:::unichurch-uploads-${self:provider.stage}/*"
+
+functions:
+  api:
+    handler: src/lambda.handler
+    events:
+      - http:
+          path: /
+          method: ANY
+          cors: true
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors: true
+
+# CloudFormation resources (optional)
+resources:
+  Resources:
+    # S3 Bucket for uploads (optional but recommended)
+    UploadsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: unichurch-uploads-${self:provider.stage}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+              MaxAge: 3000
+
+# Packaging
+package:
+  individually: false
+  patterns:
+    - '!.git/**'
+    - '!.gitignore'
+    - '!.env*'
+    - '!README.md'
+    - '!node_modules/aws-sdk/**'
+    - '!uploads/**'
+
+plugins:
+  - serverless-offline
+  - serverless-dotenv-plugin
+
+custom:
+  serverless-offline:
+    httpPort: 3000
+    lambdaPort: 3002
+

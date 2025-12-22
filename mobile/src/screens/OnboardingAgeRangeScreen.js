@@ -16,15 +16,7 @@ export default function OnboardingAgeRangeScreen({ route, navigation }) {
   const [selectedAge, setSelectedAge] = useState(null);
 
   // Filtrar apenas as faixas etárias
-  const ageRanges = allInterests.filter(i => 
-    i.category === 'FASE_VIDA' && (
-      i.name.includes('(') || 
-      i.name.includes('Jovem') || 
-      i.name.includes('Adulto') || 
-      i.name.includes('Meia') || 
-      i.name.includes('Melhor')
-    )
-  );
+  const ageRanges = allInterests.filter(i => i.category === 'FAIXA_ETARIA');
 
   const toggleAge = (ageId) => {
     // Só permite selecionar uma faixa etária

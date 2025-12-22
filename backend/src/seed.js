@@ -207,38 +207,151 @@ const groupTemplates = [
 ];
 
 const createInterestTags = async () => {
+  // Esportes e Atividades Físicas (expandido)
   const sports = [
     { name: 'Futebol', category: 'ESPORTE', emoji: '⚽' },
+    { name: 'Futsal', category: 'ESPORTE', emoji: '🥅' },
     { name: 'Vôlei', category: 'ESPORTE', emoji: '🏐' },
+    { name: 'Vôlei de Praia', category: 'ESPORTE', emoji: '🏖️' },
+    { name: 'Basquete', category: 'ESPORTE', emoji: '🏀' },
     { name: 'Corrida', category: 'ESPORTE', emoji: '🏃' },
-    { name: 'Academia', category: 'ESPORTE', emoji: '💪' },
+    { name: 'Caminhada', category: 'ESPORTE', emoji: '🚶' },
+    { name: 'Academia/Musculação', category: 'ESPORTE', emoji: '💪' },
+    { name: 'Crossfit', category: 'ESPORTE', emoji: '🏋️' },
     { name: 'Ciclismo', category: 'ESPORTE', emoji: '🚴' },
-    { name: 'Natação', category: 'ESPORTE', emoji: '🏊' }
+    { name: 'Mountain Bike', category: 'ESPORTE', emoji: '🚵' },
+    { name: 'Natação', category: 'ESPORTE', emoji: '🏊' },
+    { name: 'Tênis', category: 'ESPORTE', emoji: '🎾' },
+    { name: 'Tênis de Mesa', category: 'ESPORTE', emoji: '🏓' },
+    { name: 'Artes Marciais', category: 'ESPORTE', emoji: '🥋' },
+    { name: 'Yoga', category: 'ESPORTE', emoji: '🧘' },
+    { name: 'Pilates', category: 'ESPORTE', emoji: '🤸' },
+    { name: 'Dança', category: 'ESPORTE', emoji: '💃' },
+    { name: 'Skate', category: 'ESPORTE', emoji: '🛹' },
+    { name: 'Surf', category: 'ESPORTE', emoji: '🏄' },
+    { name: 'Trilhas/Hiking', category: 'ESPORTE', emoji: '🥾' },
+    { name: 'Escalada', category: 'ESPORTE', emoji: '🧗' },
+    { name: 'Patins', category: 'ESPORTE', emoji: '⛸️' }
   ];
 
+  // Hobbies e Lazer (expandido)
   const hobbies = [
     { name: 'Música', category: 'HOBBY', emoji: '🎵' },
+    { name: 'Canto', category: 'HOBBY', emoji: '🎤' },
+    { name: 'Tocar Instrumentos', category: 'HOBBY', emoji: '🎸' },
     { name: 'Fotografia', category: 'HOBBY', emoji: '📷' },
+    { name: 'Cinema', category: 'HOBBY', emoji: '🎬' },
+    { name: 'Séries', category: 'HOBBY', emoji: '📺' },
     { name: 'Leitura', category: 'HOBBY', emoji: '📚' },
+    { name: 'Escrita/Literatura', category: 'HOBBY', emoji: '✍️' },
     { name: 'Café & Conversas', category: 'HOBBY', emoji: '☕' },
-    { name: 'Viagens', category: 'HOBBY', emoji: '✈️' }
+    { name: 'Gastronomia/Culinária', category: 'HOBBY', emoji: '👨‍🍳' },
+    { name: 'Viagens', category: 'HOBBY', emoji: '✈️' },
+    { name: 'Arte/Pintura', category: 'HOBBY', emoji: '🎨' },
+    { name: 'Artesanato', category: 'HOBBY', emoji: '🧵' },
+    { name: 'Jogos de Tabuleiro', category: 'HOBBY', emoji: '🎲' },
+    { name: 'Videogames', category: 'HOBBY', emoji: '🎮' },
+    { name: 'Teatro', category: 'HOBBY', emoji: '🎭' },
+    { name: 'Jardinagem', category: 'HOBBY', emoji: '🌱' },
+    { name: 'Decoração', category: 'HOBBY', emoji: '🏡' },
+    { name: 'Podcasts', category: 'HOBBY', emoji: '🎙️' },
+    { name: 'Astronomia', category: 'HOBBY', emoji: '🔭' },
+    { name: 'Animais/Pets', category: 'HOBBY', emoji: '🐕' },
+    { name: 'Voluntariado', category: 'HOBBY', emoji: '🤝' },
+    { name: 'Moda/Estilo', category: 'HOBBY', emoji: '👗' }
   ];
 
+  // Fase da Vida (expandido com as principais)
   const lifeStages = [
     { name: 'Solteiro', category: 'FASE_VIDA', emoji: '🙋' },
+    { name: 'Solteiro com Filhos', category: 'FASE_VIDA', emoji: '👨‍👧' },
+    { name: 'Namorando', category: 'FASE_VIDA', emoji: '💕' },
+    { name: 'Noivo/Noiva', category: 'FASE_VIDA', emoji: '💍' },
     { name: 'Casado', category: 'FASE_VIDA', emoji: '💑' },
+    { name: 'Casado sem Filhos', category: 'FASE_VIDA', emoji: '👫' },
     { name: 'Pais de Primeira Viagem', category: 'FASE_VIDA', emoji: '👶' },
-    { name: 'Jovem Profissional', category: 'FASE_VIDA', emoji: '🧑‍💼' }
+    { name: 'Pais', category: 'FASE_VIDA', emoji: '👨‍👩‍👧' },
+    { name: 'Pais de Adolescentes', category: 'FASE_VIDA', emoji: '👨‍👩‍👧‍👦' },
+    { name: 'Pais de Adultos', category: 'FASE_VIDA', emoji: '👴👵' },
+    { name: 'Viúvo', category: 'FASE_VIDA', emoji: '🕊️' },
+    { name: 'Divorciado', category: 'FASE_VIDA', emoji: '💔' },
+    { name: 'Estudante', category: 'FASE_VIDA', emoji: '🎓' },
+    { name: 'Jovem Profissional', category: 'FASE_VIDA', emoji: '🧑‍💼' },
+    { name: 'Aposentado', category: 'FASE_VIDA', emoji: '🏖️' },
+    { name: 'Terceira Idade', category: 'FASE_VIDA', emoji: '👴' }
   ];
 
+  // Faixa Etária (faixas específicas de idade)
+  const ageRanges = [
+    { name: '13-17 anos', category: 'FAIXA_ETARIA', emoji: '👦' },
+    { name: '18-24 anos', category: 'FAIXA_ETARIA', emoji: '👨' },
+    { name: '25-29 anos', category: 'FAIXA_ETARIA', emoji: '👨‍🦱' },
+    { name: '30-34 anos', category: 'FAIXA_ETARIA', emoji: '👨‍💼' },
+    { name: '35-39 anos', category: 'FAIXA_ETARIA', emoji: '👨‍🦰' },
+    { name: '40-49 anos', category: 'FAIXA_ETARIA', emoji: '🧔' },
+    { name: '50-59 anos', category: 'FAIXA_ETARIA', emoji: '👨‍🦳' },
+    { name: '60+ anos', category: 'FAIXA_ETARIA', emoji: '👴' }
+  ];
+
+  // Áreas de Interesse (significativamente expandido)
   const areas = [
+    // Tecnologia e Inovação
     { name: 'Tecnologia', category: 'AREA_INTERESSE', emoji: '💻' },
+    { name: 'Programação/Desenvolvimento', category: 'AREA_INTERESSE', emoji: '👨‍💻' },
+    { name: 'Inteligência Artificial', category: 'AREA_INTERESSE', emoji: '🤖' },
+    { name: 'Marketing Digital', category: 'AREA_INTERESSE', emoji: '📱' },
+    { name: 'Design/UX', category: 'AREA_INTERESSE', emoji: '🎨' },
+    
+    // Negócios e Carreira
     { name: 'Empreendedorismo', category: 'AREA_INTERESSE', emoji: '🚀' },
+    { name: 'Liderança', category: 'AREA_INTERESSE', emoji: '👔' },
+    { name: 'Finanças Pessoais', category: 'AREA_INTERESSE', emoji: '💰' },
+    { name: 'Investimentos', category: 'AREA_INTERESSE', emoji: '📈' },
+    { name: 'Networking', category: 'AREA_INTERESSE', emoji: '🤝' },
+    { name: 'Vendas', category: 'AREA_INTERESSE', emoji: '💼' },
+    { name: 'Gestão de Projetos', category: 'AREA_INTERESSE', emoji: '📊' },
+    
+    // Educação e Desenvolvimento
     { name: 'Educação', category: 'AREA_INTERESSE', emoji: '📖' },
-    { name: 'Saúde & Bem-estar', category: 'AREA_INTERESSE', emoji: '🩺' }
+    { name: 'Desenvolvimento Pessoal', category: 'AREA_INTERESSE', emoji: '🌟' },
+    { name: 'Idiomas', category: 'AREA_INTERESSE', emoji: '🗣️' },
+    { name: 'Coaching/Mentoria', category: 'AREA_INTERESSE', emoji: '👨‍🏫' },
+    
+    // Saúde e Bem-estar
+    { name: 'Saúde & Bem-estar', category: 'AREA_INTERESSE', emoji: '🩺' },
+    { name: 'Nutrição', category: 'AREA_INTERESSE', emoji: '🥗' },
+    { name: 'Saúde Mental', category: 'AREA_INTERESSE', emoji: '🧠' },
+    { name: 'Meditação/Espiritualidade', category: 'AREA_INTERESSE', emoji: '🙏' },
+    
+    // Família e Relacionamentos
+    { name: 'Casamento', category: 'AREA_INTERESSE', emoji: '💒' },
+    { name: 'Maternidade/Paternidade', category: 'AREA_INTERESSE', emoji: '👶' },
+    { name: 'Educação de Filhos', category: 'AREA_INTERESSE', emoji: '👨‍👩‍👧' },
+    { name: 'Relacionamentos', category: 'AREA_INTERESSE', emoji: '❤️' },
+    
+    // Ministérios e Serviço
+    { name: 'Missões', category: 'AREA_INTERESSE', emoji: '🌍' },
+    { name: 'Evangelismo', category: 'AREA_INTERESSE', emoji: '📣' },
+    { name: 'Ação Social', category: 'AREA_INTERESSE', emoji: '🤲' },
+    { name: 'Ensino/Discipulado', category: 'AREA_INTERESSE', emoji: '📚' },
+    { name: 'Louvor e Adoração', category: 'AREA_INTERESSE', emoji: '🎵' },
+    { name: 'Oração/Intercessão', category: 'AREA_INTERESSE', emoji: '🙏' },
+    { name: 'Crianças/Infantil', category: 'AREA_INTERESSE', emoji: '👶' },
+    { name: 'Adolescentes/Jovens', category: 'AREA_INTERESSE', emoji: '👨‍🎓' },
+    
+    // Outras Áreas
+    { name: 'Comunicação', category: 'AREA_INTERESSE', emoji: '📢' },
+    { name: 'Criatividade', category: 'AREA_INTERESSE', emoji: '✨' },
+    { name: 'Sustentabilidade', category: 'AREA_INTERESSE', emoji: '♻️' },
+    { name: 'Política/Sociedade', category: 'AREA_INTERESSE', emoji: '🏛️' },
+    { name: 'Ciências', category: 'AREA_INTERESSE', emoji: '🔬' },
+    { name: 'História', category: 'AREA_INTERESSE', emoji: '📜' },
+    { name: 'Direito/Justiça', category: 'AREA_INTERESSE', emoji: '⚖️' },
+    { name: 'Arquitetura/Urbanismo', category: 'AREA_INTERESSE', emoji: '🏗️' },
+    { name: 'Psicologia', category: 'AREA_INTERESSE', emoji: '🧠' }
   ];
 
-  const tags = [...sports, ...hobbies, ...lifeStages, ...areas];
+  const tags = [...sports, ...hobbies, ...lifeStages, ...ageRanges, ...areas];
   await InterestTag.insertMany(tags);
   return tags.length;
 };

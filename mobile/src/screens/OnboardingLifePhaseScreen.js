@@ -14,16 +14,8 @@ export default function OnboardingLifePhaseScreen({ route, navigation }) {
   const { church, userData, allInterests } = route.params;
   const [selectedPhases, setSelectedPhases] = useState([]);
 
-  // Filtrar apenas estados civis e situações familiares (sem faixas etárias)
-  const phases = allInterests.filter(i => 
-    i.category === 'FASE_VIDA' && !(
-      i.name.includes('(') || 
-      i.name.includes('Jovem') || 
-      i.name.includes('Adulto') || 
-      i.name.includes('Meia') || 
-      i.name.includes('Melhor')
-    )
-  );
+  // Filtrar apenas estados civis e situações familiares
+  const phases = allInterests.filter(i => i.category === 'FASE_VIDA');
 
   const togglePhase = (phaseId) => {
     setSelectedPhases(prev => {

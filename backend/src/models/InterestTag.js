@@ -8,7 +8,7 @@ const interestTagSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    enum: ['ESPORTE', 'HOBBY', 'FASE_VIDA', 'AREA_INTERESSE'],
+    enum: ['ESPORTE', 'HOBBY', 'FASE_VIDA', 'FAIXA_ETARIA', 'AREA_INTERESSE'],
     required: true
   },
   emoji: {
