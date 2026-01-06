@@ -5,6 +5,7 @@ const User = require('./models/User');
 const Group = require('./models/Group');
 const GroupMember = require('./models/GroupMember');
 const InterestTag = require('./models/InterestTag');
+const UserInterest = require('./models/UserInterest');
 const Event = require('./models/Event');
 
 const slugify = (str) =>
@@ -32,9 +33,9 @@ const churchesData = [
     logo_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300',
     location: { type: 'Point', coordinates: [-46.6333, -23.5505] },
     address: 'Av. Paulista, 1000 - Bela Vista, São Paulo - SP',
-    admin_email: 'admin.sp@unichurch.com',
-    admin_password: 'unichurch123',
-    admin_name: 'Pr. Gabriel Silva',
+    admin_email: 'demo.admin@unichurch.com',
+    admin_password: 'demo123',
+    admin_name: 'Demo Admin',
     secondary_admin_name: 'Pra. Juliana Mendes',
     secondary_admin_email: 'juliana.sp@unichurch.com'
   },
@@ -527,9 +528,66 @@ async function seedDatabase() {
 
       await GroupMember.insertMany(membershipDocs);
 
-      console.log(
-        `   • ${memberDocs.length + 2} membros (${adminUser.name}, ${secondaryAdminUser.name} + ${memberDocs.length})`
-      );
+      // ============================================
+      // CRIAR USUÁRIOS DEMO PARA TESTE DA APPLE (apenas na primeira igreja)
+      // ============================================
+      if (index === 0) {
+        console.log(`\n📱 Criando usuários DEMO para testes...`);
+        
+        // Demo Membro
+        const demoMember = new User({
+          church_id: church._id,
+          name: 'Demo Membro',
+          email: 'demo.membro@unichurch.com',
+          password: 'demo123',
+          auth_provider: 'email',
+          profession: 'Testador',
+          whatsapp: '+5511999998888',
+          instagram: '@demomembro',
+          show_profile: true,
+          show_whatsapp: true,
+          show_instagram: true,
+          is_new: false
+        });
+        await demoMember.save();
+
+        // Adicionar alguns interesses ao demo membro
+        const demoInterests = [
+          'Futebol', 'Música', 'Tecnologia', 'Voluntariado'
+        ];
+        
+        for (const interestName of demoInterests) {
+          const tag = await InterestTag.findOne({ name: interestName });
+          if (tag) {
+            await UserInterest.create({
+              user_id: demoMember._id,
+              interest_tag_id: tag._id
+            });
+          }
+        }
+
+        // Adicionar demo membro a alguns grupos
+        const someGroups = createdGroups.slice(0, 3);
+        for (const group of someGroups) {
+          await GroupMember.create({
+            group_id: group._id,
+            user_id: demoMember._id,
+            joined_at: new Date()
+          });
+        }
+
+        console.log(`   ✅ Demo Membro: demo.membro@unichurch.com / demo123`);
+        console.log(`   ✅ Demo Admin: demo.admin@unichurch.com / demo123 (Church Admin)`);
+        console.log(`   📍 Igreja: ${church.name} (${church.qr_code_id})`);
+
+        console.log(
+          `   • ${memberDocs.length + 3} membros (incluindo 1 demo + ${adminUser.name}, ${secondaryAdminUser.name})`
+        );
+      } else {
+        console.log(
+          `   • ${memberDocs.length + 2} membros (${adminUser.name}, ${secondaryAdminUser.name} + ${memberDocs.length})`
+        );
+      }
       console.log(`   • ${createdGroups.length} grupos criados (com admins de grupo definidos)`);
       console.log(`   • Todos os grupos têm links do WhatsApp configurados`);
     }

@@ -1,21 +1,21 @@
 {
   "service": {
-    "service": "unichurch-api",
+    "service": "unichurch-backend-api",
     "serviceObject": {
-      "name": "unichurch-api"
+      "name": "unichurch-backend-api"
     },
     "provider": {
       "name": "aws",
       "runtime": "nodejs18.x",
       "stage": "dev",
       "region": "us-east-1",
+      "profile": "unichurch",
       "memorySize": 512,
       "timeout": 30,
       "environment": {
         "MONGODB_URI": "mongodb+srv://thiago_db_user:WyghpBk6qLbBiU5N@unichurch.b2rtjwi.mongodb.net/unichurch?retryWrites=true&w=majority&appName=UniChurch",
         "JWT_SECRET": "unichurch_jwt_secret_change_in_production_2024",
-        "NODE_ENV": "development",
-        "PORT": "3000"
+        "NODE_ENV": "development"
       },
       "iam": {
         "role": {
@@ -27,7 +27,7 @@
                 "s3:GetObject",
                 "s3:DeleteObject"
               ],
-              "Resource": "arn:aws:s3:::unichurch-uploads-dev/*"
+              "Resource": "arn:aws:s3:::unichurch-backend-uploads-dev/*"
             }
           ]
         }
@@ -109,7 +109,7 @@
           "ApiLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-              "LogGroupName": "/aws/lambda/unichurch-api-dev-api"
+              "LogGroupName": "/aws/lambda/unichurch-backend-api-dev-api"
             }
           },
           "IamRoleLambdaExecution": {
@@ -137,7 +137,7 @@
                     "Fn::Join": [
                       "-",
                       [
-                        "unichurch-api",
+                        "unichurch-backend-api",
                         "dev",
                         "lambda"
                       ]
@@ -155,7 +155,7 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/unichurch-api-dev*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/unichurch-backend-api-dev*:*"
                           }
                         ]
                       },
@@ -166,7 +166,7 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/unichurch-api-dev*:*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/unichurch-backend-api-dev*:*:*"
                           }
                         ]
                       },
@@ -182,7 +182,7 @@
                 "Fn::Join": [
                   "-",
                   [
-                    "unichurch-api",
+                    "unichurch-backend-api",
                     "dev",
                     {
                       "Ref": "AWS::Region"
@@ -200,19 +200,18 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/unichurch-api/dev/1766154836207-2025-12-19T14:33:56.207Z/unichurch-api.zip"
+                "S3Key": "serverless/unichurch-backend-api/dev/1767722485213-2026-01-06T18:01:25.213Z/unichurch-backend-api.zip"
               },
               "Handler": "src/lambda.handler",
               "Runtime": "nodejs18.x",
-              "FunctionName": "unichurch-api-dev-api",
+              "FunctionName": "unichurch-backend-api-dev-api",
               "MemorySize": 512,
               "Timeout": 30,
               "Environment": {
                 "Variables": {
                   "MONGODB_URI": "mongodb+srv://thiago_db_user:WyghpBk6qLbBiU5N@unichurch.b2rtjwi.mongodb.net/unichurch?retryWrites=true&w=majority&appName=UniChurch",
                   "JWT_SECRET": "unichurch_jwt_secret_change_in_production_2024",
-                  "NODE_ENV": "development",
-                  "PORT": "3000"
+                  "NODE_ENV": "development"
                 }
               },
               "Role": {
@@ -226,20 +225,20 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersionnmTxK2KFIZ1U074gC3O3D3dwP5Fg5yVmfBWTcqk6Q": {
+          "ApiLambdaVersionZzvKK6AnVPKRIwT5Ql7miKGhthjiskjtOxKNVIO8jQ": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "GN0RftowsP9FzBzjZuzOASMlTnJglR9qcsLfx2wpBLE="
+              "CodeSha256": "uRveqHYBQE9BHDAFPdaOW6fK6b8+1k0+5VcW26JCgg0="
             }
           },
           "ApiGatewayRestApi": {
             "Type": "AWS::ApiGateway::RestApi",
             "Properties": {
-              "Name": "dev-unichurch-api",
+              "Name": "dev-unichurch-backend-api",
               "EndpointConfiguration": {
                 "Types": [
                   "EDGE"
@@ -451,7 +450,7 @@
               "ApiLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1766154831782": {
+          "ApiGatewayDeployment1767722480754": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -506,7 +505,7 @@
           "UploadsBucket": {
             "Type": "AWS::S3::Bucket",
             "Properties": {
-              "BucketName": "unichurch-uploads-dev",
+              "BucketName": "unichurch-backend-uploads-dev",
               "CorsConfiguration": {
                 "CorsRules": [
                   {
@@ -535,16 +534,16 @@
               "Ref": "ServerlessDeploymentBucket"
             },
             "Export": {
-              "Name": "sls-unichurch-api-dev-ServerlessDeploymentBucketName"
+              "Name": "sls-unichurch-backend-api-dev-ServerlessDeploymentBucketName"
             }
           },
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersionnmTxK2KFIZ1U074gC3O3D3dwP5Fg5yVmfBWTcqk6Q"
+              "Ref": "ApiLambdaVersionZzvKK6AnVPKRIwT5Ql7miKGhthjiskjtOxKNVIO8jQ"
             },
             "Export": {
-              "Name": "sls-unichurch-api-dev-ApiLambdaFunctionQualifiedArn"
+              "Name": "sls-unichurch-backend-api-dev-ApiLambdaFunctionQualifiedArn"
             }
           },
           "ServiceEndpoint": {
@@ -570,7 +569,7 @@
               ]
             },
             "Export": {
-              "Name": "sls-unichurch-api-dev-ServiceEndpoint"
+              "Name": "sls-unichurch-backend-api-dev-ServiceEndpoint"
             }
           }
         }
@@ -663,11 +662,19 @@
       "serverless-offline": {
         "httpPort": 3000,
         "lambdaPort": 3002
+      },
+      "dotenv": {
+        "path": ".env",
+        "include": [
+          "MONGODB_URI",
+          "JWT_SECRET",
+          "NODE_ENV"
+        ]
       }
     },
     "plugins": [
-      "serverless-offline",
-      "serverless-dotenv-plugin"
+      "serverless-dotenv-plugin",
+      "serverless-offline"
     ],
     "pluginsData": {},
     "functions": {
@@ -723,13 +730,13 @@
             }
           }
         ],
-        "name": "unichurch-api-dev-api",
+        "name": "unichurch-backend-api-dev-api",
         "package": {},
         "memory": 512,
         "timeout": 30,
         "runtime": "nodejs18.x",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersionnmTxK2KFIZ1U074gC3O3D3dwP5Fg5yVmfBWTcqk6Q"
+        "versionLogicalId": "ApiLambdaVersionZzvKK6AnVPKRIwT5Ql7miKGhthjiskjtOxKNVIO8jQ"
       }
     },
     "resources": {
@@ -737,7 +744,7 @@
         "UploadsBucket": {
           "Type": "AWS::S3::Bucket",
           "Properties": {
-            "BucketName": "unichurch-uploads-dev",
+            "BucketName": "unichurch-backend-uploads-dev",
             "CorsConfiguration": {
               "CorsRules": [
                 {
@@ -765,7 +772,7 @@
     "configValidationMode": "warn",
     "serviceFilename": "serverless.yml",
     "initialServerlessConfig": {
-      "service": "unichurch-api",
+      "service": "unichurch-backend-api",
       "frameworkVersion": "3",
       "provider": {
         "$ref": "$[\"service\"][\"provider\"]"
@@ -786,9 +793,9 @@
           "!node_modules/aws-sdk/**",
           "!uploads/**"
         ],
-        "artifactsS3KeyDirname": "serverless/unichurch-api/dev/code-artifacts",
-        "artifact": "/Users/thiagopinho/UniChurch/UniChurch/backend/.serverless/unichurch-api.zip",
-        "artifactDirectoryName": "serverless/unichurch-api/dev/1766154836207-2025-12-19T14:33:56.207Z"
+        "artifactsS3KeyDirname": "serverless/unichurch-backend-api/dev/code-artifacts",
+        "artifact": "/Users/thiagopinho/UniChurch/UniChurch/backend/.serverless/unichurch-backend-api.zip",
+        "artifactDirectoryName": "serverless/unichurch-backend-api/dev/1767722485213-2026-01-06T18:01:25.213Z"
       },
       "plugins": {
         "$ref": "$[\"service\"][\"plugins\"]"
@@ -799,11 +806,11 @@
     },
     "layers": {},
     "isDashboardMonitoringPreconfigured": false,
-    "artifact": "/Users/thiagopinho/UniChurch/UniChurch/backend/.serverless/unichurch-api.zip"
+    "artifact": "/Users/thiagopinho/UniChurch/UniChurch/backend/.serverless/unichurch-backend-api.zip"
   },
   "package": {
     "individually": false,
-    "artifactDirectoryName": "serverless/unichurch-api/dev/1766154836207-2025-12-19T14:33:56.207Z",
-    "artifact": "unichurch-api.zip"
+    "artifactDirectoryName": "serverless/unichurch-backend-api/dev/1767722485213-2026-01-06T18:01:25.213Z",
+    "artifact": "unichurch-backend-api.zip"
   }
 }

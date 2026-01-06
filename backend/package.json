@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "seed": "node src/seed.js",
     "sync-ip": "node src/utils/update-mobile-config.js",
     "deploy": "serverless deploy",
     "deploy:dev": "serverless deploy --stage dev",
