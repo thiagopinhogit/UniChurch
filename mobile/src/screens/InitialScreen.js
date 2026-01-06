@@ -38,8 +38,8 @@ export default function InitialScreen({ navigation }) {
   };
 
   const handleMemberLogin = () => {
-    // TODO: Implementar login de membro
-    console.log('Login de membro');
+    setModalVisible(false);
+    setTimeout(() => navigation.navigate('MemberLogin'), 300);
   };
 
   const handleChurchRegister = () => {
@@ -134,7 +134,7 @@ export default function InitialScreen({ navigation }) {
 
                         <View style={styles.actionsContainer}>
                           <Button
-                            title="Escanear QR Code"
+                            title="Começar"
                             onPress={handleScanQR}
                             size="large"
                           />

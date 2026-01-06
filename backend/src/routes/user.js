@@ -6,6 +6,236 @@ const UserInterest = require('../models/UserInterest');
 const GroupMember = require('../models/GroupMember');
 const Event = require('../models/Event');
 
+// ============================================
+// AUTHENTICATION ROUTES
+// ============================================
+
+// Member Login with Email/Password
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email e senha são obrigatórios' });
+    }
+
+    // Find user by email only - must explicitly select password
+    const user = await User.findOne({ 
+      email: email.toLowerCase()
+    }).select('+password');
+    
+    if (!user) {
+      return res.status(401).json({ error: 'Email ou senha inválidos' });
+    }
+
+    // Check if user has password (might be OAuth only)
+    if (!user.password) {
+      return res.status(401).json({ 
+        error: 'Esta conta usa login social. Por favor, use Google ou Apple.' 
+      });
+    }
+
+    // Check password
+    const isPasswordValid = await user.comparePassword(password);
+    
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Email ou senha inválidos' });
+    }
+
+    // Get user interests
+    const interests = await UserInterest.find({ user_id: user._id })
+      .populate('interest_tag_id')
+      .lean();
+    
+    // Get church data
+    const church = await Church.findById(user.church_id).lean();
+    
+    // Return user data without password
+    const userData = user.toObject();
+    delete userData.password;
+    userData.interests = interests.map(i => i.interest_tag_id);
+    userData.church_name = church?.name;
+
+    res.json({
+      message: 'Login realizado com sucesso',
+      user: userData
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Erro ao fazer login' });
+  }
+});
+
+// Member Register with Email/Password
+router.post('/register', async (req, res) => {
+  try {
+    const { email, password, name, church_id } = req.body;
+
+    // Validation
+    if (!email || !password || !name || !church_id) {
+      return res.status(400).json({ 
+        error: 'Email, senha, nome e igreja são obrigatórios' 
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ 
+        error: 'A senha deve ter no mínimo 6 caracteres' 
+      });
+    }
+
+    // Check if email already exists in this church
+    const existingUser = await User.findOne({ 
+      email: email.toLowerCase(),
+      church_id 
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ 
+        error: 'Este email já está cadastrado nesta igreja' 
+      });
+    }
+
+    // Check if church exists
+    const church = await Church.findById(church_id);
+    if (!church) {
+      return res.status(404).json({ error: 'Igreja não encontrada' });
+    }
+
+    // Try to get Instagram photo if provided
+    let photoUrl = req.body.photo_url;
+    if (req.body.instagram && !photoUrl) {
+      photoUrl = await getInstagramPhotoUrl(req.body.instagram);
+    }
+
+    // Create user
+    const user = new User({
+      ...req.body,
+      email: email.toLowerCase(),
+      password,
+      auth_provider: 'email',
+      photo_url: photoUrl
+    });
+
+    await user.save();
+
+    // Create NEW_MEMBER event for mural
+    const event = new Event({
+      church_id: user.church_id,
+      user_id: user._id,
+      type: 'NEW_MEMBER'
+    });
+    await event.save();
+
+    // Get user without password
+    const userWithoutPassword = await User.findById(user._id);
+
+    res.status(201).json({
+      message: 'Conta criada com sucesso',
+      user: userWithoutPassword
+    });
+  } catch (error) {
+    console.error('Register error:', error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// OAuth Login/Register (Google or Apple)
+router.post('/oauth', async (req, res) => {
+  try {
+    const { 
+      provider, // 'google' or 'apple'
+      provider_user_id, 
+      email, 
+      name, 
+      photo_url,
+      church_id 
+    } = req.body;
+
+    // Validation
+    if (!provider || !provider_user_id || !email || !name || !church_id) {
+      return res.status(400).json({ 
+        error: 'Dados do provedor OAuth incompletos' 
+      });
+    }
+
+    if (!['google', 'apple'].includes(provider)) {
+      return res.status(400).json({ 
+        error: 'Provedor não suportado' 
+      });
+    }
+
+    // Check if church exists
+    const church = await Church.findById(church_id);
+    if (!church) {
+      return res.status(404).json({ error: 'Igreja não encontrada' });
+    }
+
+    // Check if user already exists with this provider
+    let user = await User.findOne({ 
+      provider_user_id,
+      auth_provider: provider
+    });
+
+    let isNewUser = false;
+
+    if (!user) {
+      // Check if email already exists in this church
+      const existingUser = await User.findOne({ 
+        email: email.toLowerCase(),
+        church_id 
+      });
+
+      if (existingUser) {
+        return res.status(400).json({ 
+          error: 'Este email já está cadastrado. Use o método de login original.' 
+        });
+      }
+
+      // Create new user
+      user = new User({
+        ...req.body,
+        email: email.toLowerCase(),
+        auth_provider: provider,
+        provider_user_id,
+        photo_url: photo_url || null
+      });
+
+      await user.save();
+      isNewUser = true;
+
+      // Create NEW_MEMBER event for mural
+      const event = new Event({
+        church_id: user.church_id,
+        user_id: user._id,
+        type: 'NEW_MEMBER'
+      });
+      await event.save();
+    }
+
+    // Get user interests
+    const interests = await UserInterest.find({ user_id: user._id })
+      .populate('interest_tag_id')
+      .lean();
+    
+    const userData = user.toObject();
+    userData.interests = interests.map(i => i.interest_tag_id);
+
+    res.status(isNewUser ? 201 : 200).json({
+      message: isNewUser ? 'Conta criada com sucesso' : 'Login realizado com sucesso',
+      user: userData,
+      isNewUser
+    });
+  } catch (error) {
+    console.error('OAuth error:', error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+
 // Helper function to get Instagram profile photo
 async function getInstagramPhotoUrl(username) {
   if (!username || username.length < 2) return null;

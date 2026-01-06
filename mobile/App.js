@@ -27,6 +27,10 @@ import OnboardingSocialScreen from './src/screens/OnboardingSocialScreen';
 import OnboardingWhatsAppScreen from './src/screens/OnboardingWhatsAppScreen';
 import OnboardingPrivacyScreen from './src/screens/OnboardingPrivacyScreen';
 
+// Authentication Screens
+import MemberSignupScreen from './src/screens/MemberSignupScreen';
+import MemberLoginScreen from './src/screens/MemberLoginScreen';
+
 // Main App
 import MainNavigator from './src/navigation/MainNavigator';
 import AdminNavigator from './src/navigation/AdminNavigator';
@@ -223,6 +227,18 @@ export default function App() {
               title: 'Privacidade',
               headerBackTitle: 'Voltar'
             }}
+          />
+
+          {/* Member Authentication */}
+          <Stack.Screen 
+            name="MemberSignup" 
+            component={MemberSignupScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="MemberLogin" 
+            component={MemberLoginScreen}
+            options={{ headerShown: false }}
           />
 
           {/* Church Registration Flow */}

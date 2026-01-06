@@ -8,14 +8,11 @@ import {
   ScrollView,
   Alert
 } from 'react-native';
-import { createUser, addUserInterest } from '../services/api';
-import { saveUser } from '../services/storage';
 import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../styles/theme';
 import Button from '../components/Button';
 
 export default function OnboardingPrivacyScreen({ route, navigation }) {
   const { church, userData } = route.params;
-  const [loading, setLoading] = useState(false);
   const [privacy, setPrivacy] = useState({
     show_profile: true,
     show_whatsapp: true,
@@ -28,44 +25,21 @@ export default function OnboardingPrivacyScreen({ route, navigation }) {
   };
 
   const handleComplete = async () => {
-    setLoading(true);
-    try {
-      // Cria o usuário com todos os dados
-      // O backend vai buscar automaticamente a foto de perfil do Instagram se fornecido
-      const userPayload = {
-        church_id: church._id,
-        name: userData.name,
-        whatsapp: userData.whatsapp || '',
-        instagram: userData.instagram || '',
-        ...privacy
-      };
+    // Prepara todos os dados do onboarding
+    const onboardingData = {
+      church_id: church._id,
+      name: userData.name,
+      whatsapp: userData.whatsapp || '',
+      instagram: userData.instagram || '',
+      interests: userData.interests || [],
+      ...privacy
+    };
 
-      console.log('Creating user with payload:', userPayload);
-      const userResponse = await createUser(userPayload);
-      const newUser = userResponse.data;
-
-      // Adiciona os interesses
-      if (userData.interests && userData.interests.length > 0) {
-        await Promise.all(
-          userData.interests.map(interestId => 
-            addUserInterest(newUser._id, interestId)
-          )
-        );
-      }
-
-      // Salva localmente
-      await saveUser(newUser);
-
-      // Navega para o app principal
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'MainApp', params: { initialRoute: 'Pessoas' } }],
-      });
-    } catch (error) {
-      Alert.alert('Erro', 'Não foi possível completar o cadastro. Tente novamente.');
-      console.error('Error completing onboarding:', error);
-      setLoading(false);
-    }
+    // Navega para a tela de criação de conta
+    navigation.navigate('MemberSignup', { 
+      church, 
+      onboardingData 
+    });
   };
 
   return (
@@ -126,10 +100,9 @@ export default function OnboardingPrivacyScreen({ route, navigation }) {
 
       <View style={styles.footer}>
         <Button 
-          title="Concluir" 
+          title="Continuar" 
           onPress={handleComplete}
           size="large"
-          loading={loading}
         />
       </View>
     </SafeAreaView>
