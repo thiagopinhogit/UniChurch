@@ -615,5 +615,48 @@ router.post('/:id/welcome', async (req, res) => {
   }
 });
 
+// Delete user account (GDPR/LGPD compliance)
+router.delete('/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const WelcomeAction = require('../models/WelcomeAction');
+
+    // Delete all user-related data
+    await Promise.all([
+      // Remove user interests
+      UserInterest.deleteMany({ user_id: req.params.id }),
+      
+      // Remove user from all groups
+      GroupMember.deleteMany({ user_id: req.params.id }),
+      
+      // Remove welcome actions (sent and received)
+      WelcomeAction.deleteMany({
+        $or: [
+          { from_user_id: req.params.id },
+          { to_user_id: req.params.id }
+        ]
+      }),
+      
+      // Remove user's events (NEW_MEMBER events)
+      Event.deleteMany({ user_id: req.params.id }),
+    ]);
+
+    // Finally, delete the user
+    await User.findByIdAndDelete(req.params.id);
+
+    res.json({ 
+      message: 'Conta deletada com sucesso. Todos os seus dados foram removidos.' 
+    });
+  } catch (error) {
+    console.error('Delete account error:', error);
+    res.status(500).json({ error: 'Erro ao deletar conta' });
+  }
+});
+
 module.exports = router;
 

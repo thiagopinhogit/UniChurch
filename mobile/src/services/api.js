@@ -54,6 +54,7 @@ export const churchAdminLogin = (email, password) =>
 export const createUser = (userData) => api.post('/users', userData);
 export const getUserById = (id) => api.get(`/users/${id}`);
 export const updateUser = (id, userData) => api.put(`/users/${id}`, userData);
+export const deleteUser = (id) => api.delete(`/users/${id}`);
 export const getChurchMembers = (churchId) => api.get(`/users/church/${churchId}/members`);
 export const getUserSuggestions = (userId) => api.get(`/users/${userId}/suggestions`);
 export const addUserInterest = (userId, interestTagId) => 

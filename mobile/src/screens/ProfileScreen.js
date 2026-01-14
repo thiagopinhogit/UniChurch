@@ -13,7 +13,7 @@ import {
   TouchableOpacity
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { getUserById, updateUser, getInterests, addUserInterest, removeUserInterest } from '../services/api';
+import { getUserById, updateUser, getInterests, addUserInterest, removeUserInterest, deleteUser } from '../services/api';
 import { getUser, saveUser, clearAll } from '../services/storage';
 import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../styles/theme';
 import Button from '../components/Button';
@@ -163,6 +163,58 @@ export default function ProfileScreen({ navigation }) {
       index: 0,
       routes: [{ name: 'Initial' }],
     });
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      '⚠️ Deletar Conta',
+      'Tem certeza que deseja deletar sua conta? Esta ação é IRREVERSÍVEL e todos os seus dados serão permanentemente removidos:\n\n• Perfil e foto\n• Interesses e hobbies\n• Participação em grupos\n• Histórico de boas-vindas\n• Todas as informações pessoais',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Deletar Conta', 
+          style: 'destructive', 
+          onPress: confirmDeleteAccount 
+        }
+      ]
+    );
+  };
+
+  const confirmDeleteAccount = async () => {
+    try {
+      setSaving(true);
+      
+      // Delete account from backend
+      await deleteUser(currentUser._id);
+      
+      // Clear local storage
+      await clearAll();
+      
+      // Show success message
+      Alert.alert(
+        'Conta Deletada',
+        'Sua conta foi deletada com sucesso. Todos os seus dados foram removidos.',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Initial' }],
+              });
+            }
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Delete account error:', error);
+      Alert.alert(
+        'Erro',
+        'Não foi possível deletar sua conta. Por favor, tente novamente mais tarde.'
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) {
@@ -336,6 +388,21 @@ export default function ProfileScreen({ navigation }) {
             style={{ marginTop: spacing.md }}
           />
         </View>
+
+        {/* Danger Zone - Delete Account */}
+        <View style={styles.dangerSection}>
+          <Text style={styles.dangerTitle}>Zona de Perigo</Text>
+          <Text style={styles.dangerDescription}>
+            Uma vez deletada, sua conta não poderá ser recuperada.
+          </Text>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={handleDeleteAccount}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.deleteButtonText}>Deletar Conta</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -468,6 +535,46 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontWeight: fontWeight.medium,
     letterSpacing: -0.2,
+  },
+  dangerSection: {
+    padding: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.xxl,
+    marginTop: spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: colors.borderLight,
+    backgroundColor: '#FFF5F5',
+  },
+  dangerTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.semibold,
+    color: '#C53030',
+    marginBottom: spacing.xs,
+    letterSpacing: -0.3,
+  },
+  dangerDescription: {
+    fontSize: fontSize.sm,
+    color: '#742A2A',
+    marginBottom: spacing.lg,
+    lineHeight: 20,
+  },
+  deleteButton: {
+    backgroundColor: 'transparent',
+    borderColor: '#C53030',
+    borderWidth: 1.5,
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 52,
+    ...shadows.small,
+  },
+  deleteButtonText: {
+    color: '#C53030',
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.semibold,
+    letterSpacing: -0.3,
   },
 });
 

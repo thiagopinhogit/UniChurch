@@ -9,10 +9,22 @@
     "dev:backend": "cd backend && npm run dev",
     "dev:mobile": "cd mobile && npm start",
     "seed": "cd backend && node src/seed.js",
-    "start:backend": "cd backend && npm start"
+    "start:backend": "cd backend && npm start",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
-  "keywords": ["church", "integration", "community", "react-native", "mongodb"],
+  "keywords": [
+    "church",
+    "integration",
+    "community",
+    "react-native",
+    "mongodb"
+  ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "expo": "^54.0.31",
+    "react": "19.1.0",
+    "react-native": "0.81.5"
+  }
 }
-

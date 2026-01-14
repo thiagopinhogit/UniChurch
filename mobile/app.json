@@ -47,7 +47,7 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Permitir que $(PRODUCT_NAME) acesse suas fotos."
+          "photosPermission": "UniChurch precisa acessar suas fotos para permitir que você selecione e adicione uma foto de perfil à sua conta, ajudando outros membros da igreja a te reconhecerem e se conectarem com você."
         }
       ],
       [

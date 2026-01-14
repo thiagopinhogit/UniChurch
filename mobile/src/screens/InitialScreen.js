@@ -10,6 +10,7 @@ import {
   Dimensions,
   Platform,
   TouchableWithoutFeedback,
+  ScrollView,
   Image
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -120,8 +121,13 @@ export default function InitialScreen({ navigation }) {
                     </TouchableOpacity>
                   </View>
 
-                  {/* Conteúdo do modal */}
-                  <View style={styles.modalContent}>
+                  {/* Conteúdo do modal com ScrollView */}
+                  <ScrollView 
+                    style={styles.modalScrollView}
+                    contentContainerStyle={styles.modalContent}
+                    showsVerticalScrollIndicator={false}
+                    bounces={false}
+                  >
                     {activeTab === 'member' ? (
                       <>
                         <View style={styles.contentHeader}>
@@ -173,7 +179,7 @@ export default function InitialScreen({ navigation }) {
                         </View>
                       </>
                     )}
-                  </View>
+                  </ScrollView>
                 </View>
               </View>
             </TouchableWithoutFeedback>
@@ -278,7 +284,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: borderRadius.xxl + 8,
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.md,
-    paddingBottom: spacing.xxxl,
+    paddingBottom: Math.max(spacing.xxxl, 40), // Ensure bottom padding for safe area
     minHeight: height * 0.45,
     maxHeight: height * 0.75,
     ...Platform.select({
@@ -329,8 +335,13 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: fontWeight.semibold,
   },
+  modalScrollView: {
+    flexGrow: 0,
+    flexShrink: 1,
+  },
   modalContent: {
     gap: spacing.xl,
+    paddingBottom: spacing.md,
   },
   contentHeader: {
     alignItems: 'center',
